@@ -50,7 +50,7 @@ Please install StarCraft II from [Battle.net](https://battle.net). The free [Sta
 
 SMAC is composed of many combat scenarios with pre-configured maps. Before SMAC can be used, these maps need to be downloaded into the `Maps` directory of StarCraft II.
 
-Download the [SMAC Maps](https://github.com/oxwhirl/smac/releases/download/v1.2/smac_maps.zip) and extract them to your `$SC2PATH/Maps` directory.(**TODO** fix the link) If you installed SMAC via git, simply copy the `SMAC_Maps` directory from `smac/env/starcraft2/maps/` into `$SC2PATH/Maps` directory.
+Download the [SMAC Maps](https://github.com/oxwhirl/smac/files/2760208/SMAC_Maps.zip) and extract them to your `$SC2PATH/Maps` directory. If you installed SMAC via git, simply copy the `SMAC_Maps` directory from `smac/env/starcraft2/maps/` into `$SC2PATH/Maps` directory.
 
 ### List the maps
 
@@ -88,7 +88,7 @@ For the detailed description of the environment, read the [SMAC documentation](d
 
 If you use SMAC in your research, please cite the [SMAC Paper](https://arxiv.org/abs/TODO).
 
-*M. Samvelyan, T. Rashid, C. Schroeder de Witt, G. Farquhar, N. Nardelli, T.G.J Rudner, CM Hung, P.H.S. Torr, J. Foerster, S. Whiteson. The StarCraft Multi-Agent Challenge, CoRR abs/TBD, 2018*
+*M. Samvelyan, T. Rashid, C. Schroeder de Witt, G. Farquhar, N. Nardelli, T.G.J Rudner, CM Hung, P.H.S. Torr, J. Foerster, S. Whiteson. The StarCraft Multi-Agent Challenge, CoRR abs/TBD, 2019*
 
 In BibTeX format:
 
