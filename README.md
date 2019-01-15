@@ -6,8 +6,9 @@
 
 [SMAC](https://github.com/oxwhirl/smac) is [WhiRL](http://whirl.cs.ox.ac.uk)'s environment for research in the field of collaborative multi-agent reinforcement learning (MARL) based on [Blizzard](http://blizzard.com)'s [StarCraft II](https://en.wikipedia.org/wiki/StarCraft_II:_Wings_of_Liberty) RTS game. SMAC makes use of Blizzard's [StarCraft II Machine Learning API](https://github.com/Blizzard/s2client-proto) and [DeepMind](https://deepmind.com)'s [PySC2](https://github.com/deepmind/pysc2) to provide a convenient interface for autonomous agents to interact with StarCraft II, getting observations and performing actions. Unlike the [PySC2](https://github.com/deepmind/pysc2), SMAC concentrates on *decentralised micromanamgent* scenarios, where each unit of the game is controlled by an individual RL agent.
 
+<!---
 Please refer to the accompanying [paper](https://arxiv.org/abs/TODO) and [blogpost](http://whirl.cs.ox.ac.uk/blog/smac) for the outline of our motivation for using SMAC as a testbed for MARL research and the initial experimental results.
-
+--->
 ## About
 
 Together with SMAC we also release [PyMARL](https://github.com/oxwhirl/pymarl) - our framework for MARL research, which includes implementations of several state-of-the-art algorithms, such as [QMIX](https://arxiv.org/abs/1803.11485) and [COMA](https://arxiv.org/abs/1705.08926).
@@ -82,7 +83,9 @@ For more information, please refer to [PySC2](https://github.com/deepmind/pysc2)
 
 # Documentation 
 
-For the detailed description of the environment, read the [SMAC documentation](docs/smac.md). The initial results of our experiments using SMAC can be found in the [accompanying paper](https://arxiv.org/abs/TODO).
+For the detailed description of the environment, read the [SMAC documentation](docs/smac.md). 
+<!---
+The initial results of our experiments using SMAC can be found in the [accompanying paper](https://arxiv.org/abs/TODO).
 
 # Citing  SMAC 
 
@@ -101,6 +104,7 @@ In BibTeX format:
   year = "2019"
 }
 ```
+-->
 
 # Code Example
 
