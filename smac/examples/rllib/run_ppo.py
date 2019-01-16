@@ -24,6 +24,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--num-iters", type=int, default=100)
     parser.add_argument("--num-workers", type=int, default=2)
+    parser.add_argument("--map-name", type=str, default="8m")
     args = parser.parse_args()
 
     ray.init()
@@ -43,7 +44,7 @@ if __name__ == "__main__":
                 "observation_filter": "NoFilter",  # breaks the action mask
                 "vf_share_layers": True,  # don't create a separate value model
                 "env_config": {
-                    "map_name": "8m",
+                    "map_name": args.map_name,
                 },
                 "model": {
                     "custom_model": "mask_model",

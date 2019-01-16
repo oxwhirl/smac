@@ -22,6 +22,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--num-iters", type=int, default=100)
     parser.add_argument("--num-workers", type=int, default=2)
+    parser.add_argument("--map-name", type=str, default="8m")
     args = parser.parse_args()
 
     def env_creator(smac_args):
@@ -48,7 +49,7 @@ if __name__ == "__main__":
             "config": {
                 "num_workers": args.num_workers,
                 "env_config": {
-                    "map_name": "8m",
+                    "map_name": args.map_name,
                 },
             },
         },
