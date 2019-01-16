@@ -20,8 +20,8 @@ class RLlibStarCraft2Env(rllib.MultiAgentEnv):
                 smac.env.starcraft.StarCraft2Env instance.
 
         Examples:
-            >>> from smac.examples.rllib import StarCraft2Env
-            >>> env = StarCraft2Env(map_name="8m")
+            >>> from smac.examples.rllib import RLlibStarCraft2Env
+            >>> env = RLlibStarCraft2Env(map_name="8m")
             >>> print(env.reset())
         """
 
@@ -41,14 +41,14 @@ class RLlibStarCraft2Env(rllib.MultiAgentEnv):
         """
 
         obs_list, state_list = self._env.reset()
-        self._ready_agents = []
         return_obs = {}
         for i, obs in enumerate(obs_list):
             return_obs[i] = {
                 "action_mask": self._env.get_avail_agent_actions(i),
                 "obs": obs,
             }
-            self._ready_agents.append(i)
+
+        self._ready_agents = list(range(len(obs_list)))
         return return_obs
 
     def step(self, action_dict):
@@ -92,4 +92,5 @@ class RLlibStarCraft2Env(rllib.MultiAgentEnv):
         dones["__all__"] = done
         infos = {i: info for i in range(len(obs_list))}
 
+        self._ready_agents = list(range(len(obs_list)))
         return return_obs, rews, dones, infos
