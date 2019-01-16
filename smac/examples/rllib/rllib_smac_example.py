@@ -55,21 +55,15 @@ class MaskedActionsModel(Model):
 
 
 class SC2MultiAgentEnv(MultiAgentEnv):
-    """RLlib Wrapper around StarCraft2."""
+    """RLlib Wrapper around SMAC (Multi-Agent SC2).
 
-    def __init__(self, override_cfg):
-        PYMARL_PATH = override_cfg.pop("pymarl_path")
-        os.environ["SC2PATH"] = os.path.join(PYMARL_PATH,
-                                             "3rdparty/StarCraftII")
-        sys.path.append(os.path.join(PYMARL_PATH, "src"))
-        from envs.starcraft2 import StarCraft2Env
-        curpath = os.path.dirname(os.path.abspath(__file__))
-        with open(os.path.join(curpath, "sc2.yaml")) as f:
-            pymarl_args = yaml.load(f)
-            pymarl_args.update(override_cfg)
-            pymarl_args["env_args"].setdefault("seed", 0)
+    Requires SMAC to be installed correctly - see:
+    https://github.com/oxwhirl/smac
+    """
 
-        self._starcraft_env = StarCraft2Env(**pymarl_args)
+    def __init__(self, map_name="8m"):
+        from smac.env import StarCraft2Env
+        self._starcraft_env = StarCraft2Env(map_name)
         obs_size = self._starcraft_env.get_obs_size()
         num_actions = self._starcraft_env.get_total_actions()
         self.observation_space = Dict({
@@ -112,9 +106,6 @@ if __name__ == "__main__":
     parser.add_argument("--run", type=str, default="qmix")
     args = parser.parse_args()
 
-    path_to_pymarl = os.environ.get("PYMARL_PATH",
-                                    os.path.expanduser("~/pymarl/"))
-
     ray.init()
     ModelCatalog.register_custom_model("mask_model", MaskedActionsModel)
 
@@ -125,9 +116,9 @@ if __name__ == "__main__":
         "model": {
             "custom_model": "mask_model",
         },
-        "env_config": {
-            "pymarl_path": path_to_pymarl
-        }
+        # "env_config": {
+        #     "pymarl_path": path_to_pymarl
+        # }
     }
     if args.run.lower() == "qmix":
 
