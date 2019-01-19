@@ -229,29 +229,9 @@ class StarCraft2Env(MultiAgentEnv):
         self.unit_type_bits = map_params["unit_type_bits"]
         self.map_type = map_params["map_type"]
 
-        self._launch()
-
         self.max_reward = (
             self.n_enemies * self.reward_death_value + self.reward_win
         )
-        self._game_info = self.controller.game_info()
-        self._map_info = self._game_info.start_raw
-        self.map_x = self._map_info.map_size.x
-        self.map_y = self._map_info.map_size.y
-        self.map_play_area_min = self._map_info.playable_area.p0
-        self.map_play_area_max = self._map_info.playable_area.p1
-        self.max_distance_x = (
-            self.map_play_area_max.x - self.map_play_area_min.x
-        )
-        self.max_distance_y = (
-            self.map_play_area_max.y - self.map_play_area_min.y
-        )
-        self.terrain_height = np.flip(
-            np.transpose(np.array(list(self._map_info.terrain_height.data))
-                .reshape(self.map_x, self.map_y)), 1) / 255
-        self.pathing_grid = np.flip(
-            np.transpose(np.array(list(self._map_info.pathing_grid.data))
-                .reshape(self.map_x, self.map_y)), 1) / 255
 
         self.agents = {}
         self.enemies = {}
@@ -273,6 +253,15 @@ class StarCraft2Env(MultiAgentEnv):
         self.marine_id = self.marauder_id = self.medivac_id = 0
         self.hydralisk_id = self.zergling_id = self.baneling_id = 0
         self.stalker_id = self.colossus_id = self.zealot_id = 0
+        self.max_distance_x = 0
+        self.max_distance_y = 0
+        self.map_x = 0
+        self.map_y = 0
+        self.terrain_height = None
+        self.pathing_grid = None
+        self._run_config = None
+        self._sc2_proc = None
+        self._controller = None
 
     def _launch(self):
         """Launch the StarCraft II game."""
@@ -284,7 +273,7 @@ class StarCraft2Env(MultiAgentEnv):
 
         self._sc2_proc = self._run_config.start(game_version=self.game_version,
                                                 window_size=self.window_size)
-        self.controller = self._sc2_proc.controller
+        self._controller = self._sc2_proc.controller
 
         # Request to create the game
         create = sc_pb.RequestCreateGame(
@@ -296,22 +285,37 @@ class StarCraft2Env(MultiAgentEnv):
         create.player_setup.add(type=sc_pb.Participant)
         create.player_setup.add(type=sc_pb.Computer, race=races[self._bot_race],
                                 difficulty=difficulties[self.difficulty])
-        self.controller.create_game(create)
+        self._controller.create_game(create)
 
         join = sc_pb.RequestJoinGame(race=races[self._agent_race],
                                      options=interface_options)
-        self.controller.join_game(join)
+        self._controller.join_game(join)
+
+        game_info = self._controller.game_info()
+        map_info = game_info.start_raw
+        map_play_area_min = map_info.playable_area.p0
+        map_play_area_max = map_info.playable_area.p1
+        self.max_distance_x = map_play_area_max.x - map_play_area_min.x
+        self.max_distance_y = map_play_area_max.y - map_play_area_min.y
+        self.map_x = map_info.map_size.x
+        self.map_y = map_info.map_size.y
+        self.terrain_height = np.flip(
+            np.transpose(np.array(list(map_info.terrain_height.data))
+                .reshape(self.map_x, self.map_y)), 1) / 255
+        self.pathing_grid = np.flip(
+            np.transpose(np.array(list(map_info.pathing_grid.data))
+                .reshape(self.map_x, self.map_y)), 1) / 255
 
     def reset(self):
         """Reset the environment. Required after each full episode.
         Returns initial observations and states.
         """
         self._episode_steps = 0
-        if self._episode_count > 0:
-            # No need to restart for the first episode.
+        if self._episode_count == 0:
+            # Launch StarCraft II
+            self._launch()
+        else:
             self._restart()
-
-        self._episode_count += 1
 
         # Information kept for counting the reward
         self.death_tracker_ally = np.zeros(self.n_agents)
@@ -322,7 +326,7 @@ class StarCraft2Env(MultiAgentEnv):
         self.last_action = np.zeros((self.n_agents, self.n_actions))
 
         try:
-            self._obs = self.controller.observe()
+            self._obs = self._controller.observe()
             self.init_units()
         except (protocol.ProtocolError, protocol.ConnectionError):
             self.full_restart()
@@ -339,8 +343,8 @@ class StarCraft2Env(MultiAgentEnv):
         episode when there are no units left.
         """
         try:
-            self.kill_all_units()
-            self.controller.step(2)
+            self._kill_all_units()
+            self._controller.step(2)
         except (protocol.ProtocolError, protocol.ConnectionError):
             self.full_restart()
 
@@ -369,11 +373,11 @@ class StarCraft2Env(MultiAgentEnv):
         # Send action request
         req_actions = sc_pb.RequestAction(actions=sc_actions)
         try:
-            self.controller.actions(req_actions)
+            self._controller.actions(req_actions)
             # Make step in SC2, i.e. apply actions
-            self.controller.step(self._step_mul)
+            self._controller.step(self._step_mul)
             # Observe here so that we know if the episode is over.
-            self._obs = self.controller.observe()
+            self._obs = self._controller.observe()
         except (protocol.ProtocolError, protocol.ConnectionError):
             self.full_restart()
             return 0, True, {}
@@ -415,6 +419,9 @@ class StarCraft2Env(MultiAgentEnv):
 
         if self.debug:
             logging.debug("Reward = {}".format(reward).center(60, '-'))
+
+        if terminated:
+            self._episode_count += 1
 
         if self.reward_scale:
             reward /= self.max_reward / self.reward_scale_rate
@@ -610,7 +617,7 @@ class StarCraft2Env(MultiAgentEnv):
         prefix = self.replay_prefix or self.map_name
         replay_dir = self.replay_dir or ""
         replay_path = self._run_config.save_replay(
-            self.controller.save_replay(), replay_dir=replay_dir, prefix=prefix)
+            self._controller.save_replay(), replay_dir=replay_dir, prefix=prefix)
         logging.info("Replay saved at: %s" % replay_path)
 
     def unit_max_shield(self, unit):
@@ -1089,7 +1096,7 @@ class StarCraft2Env(MultiAgentEnv):
         """Not implemented."""
         pass
 
-    def kill_all_units(self):
+    def _kill_all_units(self):
         """Kill all units on the map."""
         units_alive = [
             unit.tag for unit in self.agents.values() if unit.health > 0
@@ -1097,7 +1104,7 @@ class StarCraft2Env(MultiAgentEnv):
         debug_command = [
             d_pb.DebugCommand(kill_unit=d_pb.DebugKillUnit(tag=units_alive))
         ]
-#        self.controller.debug(debug_command)
+        self._controller.debug(debug_command)
 
     def init_units(self):
         """Initialise the units."""
@@ -1132,10 +1139,10 @@ class StarCraft2Env(MultiAgentEnv):
             for unit in self._obs.observation.raw_data.units:
                 if unit.owner == 2:
                     self.enemies[len(self.enemies)] = unit
-                    if self._episode_count == 1:
+                    if self._episode_count == 0:
                         self.max_reward += unit.health_max + unit.shield_max
 
-            if self._episode_count == 1:
+            if self._episode_count == 0:
                 min_unit_type = min(
                     unit.unit_type for unit in self.agents.values()
                 )
@@ -1148,8 +1155,8 @@ class StarCraft2Env(MultiAgentEnv):
                 return
 
             try:
-                self.controller.step(1)
-                self._obs = self.controller.observe()
+                self._controller.step(1)
+                self._obs = self._controller.observe()
             except (protocol.ProtocolError, protocol.ConnectionError):
                 self.full_restart()
                 self.reset()
