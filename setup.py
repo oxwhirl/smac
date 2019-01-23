@@ -34,7 +34,8 @@ setup(
         'smac.env.starcraft2',
         'smac.env.starcraft2.maps',
         'smac.bin',
-        'smac.examples'
+        'smac.examples',
+        'smac.examples.rllib'
     ],
     install_requires=[
         's2clientprotocol>=4.6.0.67926.0',

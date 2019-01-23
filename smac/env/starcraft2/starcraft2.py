@@ -5,6 +5,7 @@ from __future__ import print_function
 from smac.env.multiagentenv import MultiAgentEnv
 from smac.env.starcraft2.maps import get_map_params
 
+import atexit
 from operator import attrgetter
 from copy import deepcopy
 import numpy as np
@@ -262,6 +263,9 @@ class StarCraft2Env(MultiAgentEnv):
         self._run_config = None
         self._sc2_proc = None
         self._controller = None
+
+        # Try to avoid leaking SC2 processes on shutdown
+        atexit.register(lambda: self.close())
 
     def _launch(self):
         """Launch the StarCraft II game."""
@@ -1086,7 +1090,8 @@ class StarCraft2Env(MultiAgentEnv):
 
     def close(self):
         """Close StarCraft II."""
-        self._sc2_proc.close()
+        if self._sc2_proc:
+            self._sc2_proc.close()
 
     def seed(self):
         """Returns the random seed used by the environment."""

@@ -108,7 +108,7 @@ In BibTeX format:
 
 # Code Example
 
-Bellow is a small code example which illustrates how SMAC can be used. Here, individual agents execute random policies after receiving the observations and global state from the environment.  
+Below is a small code example which illustrates how SMAC can be used. Here, individual agents execute random policies after receiving the observations and global state from the environment.  
 
 If you want to try the state-of-the-art algorithms (such as [QMIX](https://arxiv.org/abs/1803.11485) and [COMA](https://arxiv.org/abs/1705.08926)) on SMAC, make use of [PyMARL](https://github.com/oxwhirl/smac) - our framework for MARL research.
 
@@ -150,3 +150,7 @@ def main():
     env.close()
 
 ```
+
+# RLlib Examples
+
+You can also run SMAC environments in [RLlib](https://rllib.io), which includes scalable algorithms such as [PPO](https://ray.readthedocs.io/en/latest/rllib-algorithms.html#proximal-policy-optimization-ppo) and [IMPALA](https://ray.readthedocs.io/en/latest/rllib-algorithms.html#importance-weighted-actor-learner-architecture-impala). Check out the [example code](https://github.com/oxwhirl/smac/tree/master/smac/examples/rllib).
