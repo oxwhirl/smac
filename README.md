@@ -66,7 +66,7 @@ $ python -m smac.bin.map_list
 Please run the following command to make sure that `smac` and its maps are properly installed. 
 
 ```bash
-$ python -m smac.examples.random
+$ python -m smac.examples.random_agents
 ```
 
 ## Watch a replay
