@@ -6,9 +6,9 @@
 
 [SMAC](https://github.com/oxwhirl/smac) is [WhiRL](http://whirl.cs.ox.ac.uk)'s environment for research in the field of collaborative multi-agent reinforcement learning (MARL) based on [Blizzard](http://blizzard.com)'s [StarCraft II](https://en.wikipedia.org/wiki/StarCraft_II:_Wings_of_Liberty) RTS game. SMAC makes use of Blizzard's [StarCraft II Machine Learning API](https://github.com/Blizzard/s2client-proto) and [DeepMind](https://deepmind.com)'s [PySC2](https://github.com/deepmind/pysc2) to provide a convenient interface for autonomous agents to interact with StarCraft II, getting observations and performing actions. Unlike the [PySC2](https://github.com/deepmind/pysc2), SMAC concentrates on *decentralised micromanamgent* scenarios, where each unit of the game is controlled by an individual RL agent.
 
-<!---
-Please refer to the accompanying [paper](https://arxiv.org/abs/TODO) and [blogpost](http://whirl.cs.ox.ac.uk/blog/smac) for the outline of our motivation for using SMAC as a testbed for MARL research and the initial experimental results.
---->
+
+Please refer to the accompanying [paper](https://arxiv.org/abs/1902.04043) and [blogpost](http://whirl.cs.ox.ac.uk/blog/smac) for the outline of our motivation for using SMAC as a testbed for MARL research and the initial experimental results.
+
 ## About
 
 Together with SMAC we also release [PyMARL](https://github.com/oxwhirl/pymarl) - our framework for MARL research, which includes implementations of several state-of-the-art algorithms, such as [QMIX](https://arxiv.org/abs/1803.11485) and [COMA](https://arxiv.org/abs/1705.08926).
@@ -84,14 +84,14 @@ For more information, please refer to [PySC2](https://github.com/deepmind/pysc2)
 # Documentation 
 
 For the detailed description of the environment, read the [SMAC documentation](docs/smac.md). 
-<!---
-The initial results of our experiments using SMAC can be found in the [accompanying paper](https://arxiv.org/abs/TODO).
+
+The initial results of our experiments using SMAC can be found in the [accompanying paper](https://arxiv.org/abs/1902.04043).
 
 # Citing  SMAC 
 
-If you use SMAC in your research, please cite the [SMAC Paper](https://arxiv.org/abs/TODO).
+If you use SMAC in your research, please cite the [SMAC paper](https://arxiv.org/abs/1902.04043).
 
-*M. Samvelyan, T. Rashid, C. Schroeder de Witt, G. Farquhar, N. Nardelli, T.G.J Rudner, CM Hung, P.H.S. Torr, J. Foerster, S. Whiteson. The StarCraft Multi-Agent Challenge, CoRR abs/TBD, 2019*
+*M. Samvelyan, T. Rashid, C. Schroeder de Witt, G. Farquhar, N. Nardelli, T.G.J. Rudner, C.-M. Hung, P.H.S. Torr, J. Foerster, S. Whiteson. The StarCraft Multi-Agent Challenge, CoRR abs/1902.04043, 2019.*
 
 In BibTeX format:
 
@@ -100,11 +100,10 @@ In BibTeX format:
   title = {{The} {StarCraft} {Multi}-{Agent} {Challenge}},
   author = {Mikayel Samvelyan and Tabish Rashid and Christian Schroeder de Witt and Gregory Farquhar and Nantas Nardelli and Tim G. J. Rudner and Chia-Man Hung and Philiph H. S. Torr and Jakob Foerster and Shimon Whiteson},
   journal = {CoRR},
-  volume = {abs/TBD},
+  volume = {abs/1902.04043},
   year = "2019"
 }
 ```
--->
 
 # Code Example
 
