@@ -14,11 +14,13 @@
 SMAC is based on the popular real-time strategy (RTS) game [StarCraft II](http://us.battle.net/sc2/en/game/guide/whats-sc2) written by [Blizzard](http://blizzard.com/).
 In a regular full game of StarCraft II, one or more humans compete against each other or against a built-in game AI to gather resources, construct buildings, and build armies of units to defeat their opponents.
 
-Akin to most RTSs, StarCraft has two main gameplay components: macromanagement and micromanagement. _Macromanagement_ refers to high-level strategic considerations, such as economy and resource management. _Micromanagement_ (micro), on the other hand, refers to fine-grained control of individual units.
+Akin to most RTSs, StarCraft has two main gameplay components: macromanagement and micromanagement. 
+- _Macromanagement_ (macro) refers to high-level strategic considerations, such as economy and resource management. 
+- _Micromanagement_ (micro) refers to fine-grained control of individual units.
 
 ### Micromanagement
 
-StarCraft has been used as a research platform for AI, and more recently, RL. Typically, the game is framed as a single-agent problem: an agent takes the role of a human player, making macromanagement decisions and performing micromanagement as a puppeteer that issues orders to individual units from a centralised controller.
+StarCraft has been used as a research platform for AI, and more recently, RL. Typically, the game is framed as a competitive problem: an agent takes the role of a human player, making macromanagement decisions and performing micromanagement as a puppeteer that issues orders to individual units from a centralised controller.
 
 In order to build a rich multi-agent testbed, we instead focus solely on micromanagement.
 Micro is a vital aspect of StarCraft gameplay with a high skill ceiling, and is practiced in isolation by amateur and professional players.
@@ -108,10 +110,10 @@ All features, both in the state as well as in the observations of individual age
 ### Action Space
 
 The discrete set of actions which agents are allowed to take consists of _move[direction]_ (four directions: north, south, east, or west._, _attack[enemy_id]_, _stop_ and _no-op_. Dead agents can only take _no-op_ action while live agents cannot.
-As healer units, Medivacs must use _heal[agent\_id]_ actions instead of _attack[enemy\_id]_.
+As healer units, Medivacs must use _heal[agent\_id]_ actions instead of _attack[enemy\_id]_. The maximum number of actions an agent can take ranges between 7 and 70, depending on the scenario.
 
 To ensure decentralisation of the task, agents are restricted to use the _attack[enemy\_id]_ action only towards enemies in their _shooting range_.
-This additionally constrains the unit's ability to use the built-in _attack-move_ macro-actions on the enemies far away. We set the shooting range equal to 6. Having a bigger sight than shooting range forces agents to make use of move commands before starting to fire.
+This additionally constrains the unit's ability to use the built-in _attack-move_ macro-actions on the enemies far away. We set the shooting range equal to 6. Having a larger sight than shooting range forces agents to make use of move commands before starting to fire.
 
 ### Rewards
 
@@ -122,10 +124,11 @@ The exact values and scales of this shaped reward can be configured using a rang
 
 ### Environment Settings
 
-SMAC, through the [PySC2](https://github.com/deepmind/pysc2) framework of SC2LE, is able to send commands and receive input from the [StarCraft II API](https://github.com/Blizzard/s2client-proto), which provides full control of the StarCraft II game. SC2LE uses a _feature layer_ interface where observations are abstractions of RGB images that maintain the spatial and graphical concepts of the game. However, SMAC uses the _raw API_ also supported by StarCraft II API.
-Raw API observations do not have any graphical component and include information about the units on the map such as health, location coordinates, etc. The raw API also allows sending action commands to individual units using their unit IDs. This setting differs from how humans play the actual game, but is convenient for designing decentralised multi-agent learning tasks. 
+SMAC makes use of the [StarCraft II Learning Environment](https://arxiv.org/abs/1708.04782) (SC2LE) to communicate with the StarCraft II engine. SC2LE provides full control of the game by allowing to send commands and receive observations from the game. However, SMAC is conceptually different from the RL environment of SC2LE. The goal of SC2LE is to learn to play the full game of StarCraft II. This is a competitive task where a centralised RL agent receives RGB pixels as input and performs both macro and micro with the player-level control similar to human players. SMAC, on the other hand, represents a set of cooperative multi-agent micro challenges where each learning agent controls a single military unit.
 
-Since our micro-scenarios are shorter than actual StarCraft II games, restarting the game after each episode presents a computational bottleneck. To overcome this issue, we make use of the API's debug commands. Specifically, when all units of either army have been killed, we kill all remaining units by sending a debug action. Having no units left launches a trigger programmed with the StarCraft II Editor that re-spawns all units in their original location with full health, thereby restarting the scenario quickly and efficiently. 
+SMAC uses the _raw API_ of SC2LE. Raw API observations do not have any graphical component and include information about the units on the map such as health, location coordinates, etc. The raw API also allows sending action commands to individual units using their unit IDs. This setting differs from how humans play the actual game, but is convenient for designing decentralised multi-agent learning tasks.
+
+Since our micro-scenarios are shorter than actual StarCraft II games, restarting the game after each episode presents a computational bottleneck. To overcome this issue, we make use of the API's debug commands. Specifically, when all units of either army have been killed, we kill all remaining units by sending a debug action. Having no units left launches a trigger programmed with the StarCraft II Editor that re-spawns all units in their original location with full health, thereby restarting the scenario quickly and efficiently.
 
 Furthermore, to encourage agents to explore interesting micro-strategies themselves, we limit the influence of the StarCraft AI on our agents. Specifically we disable the automatic unit attack against enemies that attack agents or that are located nearby. 
 To do so, we make use of new units created with the StarCraft II Editor that are exact copies of existing units with two attributes modified: _Combat: Default Acquire Level_ is set to _Passive_ (default _Offensive_) and _Behaviour: Response_ is set to _No Response_ (default _Acquire_). These fields are only modified for allied units; enemy units are unchanged.
