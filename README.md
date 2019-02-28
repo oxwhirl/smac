@@ -11,7 +11,7 @@ Please refer to the accompanying [paper](https://arxiv.org/abs/1902.04043) and [
 
 ## About
 
-Together with SMAC we also release [PyMARL](https://github.com/oxwhirl/pymarl) - our framework for MARL research, which includes implementations of several state-of-the-art algorithms, such as [QMIX](https://arxiv.org/abs/1803.11485) and [COMA](https://arxiv.org/abs/1705.08926).
+Together with SMAC we also release [PyMARL](https://github.com/oxwhirl/pymarl) - our [PyTorch](https://github.com/pytorch/pytorch) framework for MARL research, which includes implementations of several state-of-the-art algorithms, such as [QMIX](https://arxiv.org/abs/1803.11485) and [COMA](https://arxiv.org/abs/1705.08926).
 
 Should you have any question, please reach to [mikayel@samvelyan.com](mailto:[mikayel@samvelyan.com) or [tabish.rashid@cs.ox.ac.uk](mailto:[tabish.rashid@cs.ox.ac.uk).
 
@@ -33,7 +33,7 @@ $ git clone https://github.com/oxwhirl/smac.git
 $ pip install smac/
 ```
 
-SMAC uses features of PySC2 that are not included in the latest release yet. If you have PySC2-2.0.1 already installed, please uninstall it first. SMAC will install a newer version from the master branch. You may also need to upgrade pip: `pip install --upgrade pip` for the install to work.
+You may also need to upgrade pip: `pip install --upgrade pip` for the install to work.
 
 ## Installing StarCraft II
 
