@@ -13,7 +13,7 @@ Please refer to the accompanying [paper](https://arxiv.org/abs/1902.04043) and [
 
 Together with SMAC we also release [PyMARL](https://github.com/oxwhirl/pymarl) - our [PyTorch](https://github.com/pytorch/pytorch) framework for MARL research, which includes implementations of several state-of-the-art algorithms, such as [QMIX](https://arxiv.org/abs/1803.11485) and [COMA](https://arxiv.org/abs/1705.08926).
 
-Should you have any question, please reach to [mikayel@samvelyan.com](mailto:[mikayel@samvelyan.com) or [tabish.rashid@cs.ox.ac.uk](mailto:[tabish.rashid@cs.ox.ac.uk).
+Should you have any question, please reach to [mikayel@samvelyan.com](mailto:mikayel@samvelyan.com) or [tabish.rashid@cs.ox.ac.uk](mailto:tabish.rashid@cs.ox.ac.uk).
 
 
 # Quick Start
@@ -101,7 +101,7 @@ In BibTeX format:
   author = {Mikayel Samvelyan and Tabish Rashid and Christian Schroeder de Witt and Gregory Farquhar and Nantas Nardelli and Tim G. J. Rudner and Chia-Man Hung and Philiph H. S. Torr and Jakob Foerster and Shimon Whiteson},
   journal = {CoRR},
   volume = {abs/1902.04043},
-  year = "2019"
+  year = {2019},
 }
 ```
 
