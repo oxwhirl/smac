@@ -211,7 +211,7 @@ class StarCraft2Env(MultiAgentEnv):
         # Other
         self.game_version = game_version
         self.continuing_episode = continuing_episode
-        self.seed = seed
+        self._seed = seed
         self.debug = debug
         self.window_size = (window_size_x, window_size_y)
         self.replay_dir = replay_dir
@@ -285,7 +285,7 @@ class StarCraft2Env(MultiAgentEnv):
                 map_path=_map.path,
                 map_data=self._run_config.map_data(_map.path)),
             realtime=False,
-            random_seed=self.seed)
+            random_seed=self._seed)
         create.player_setup.add(type=sc_pb.Participant)
         create.player_setup.add(type=sc_pb.Computer, race=races[self._bot_race],
                                 difficulty=difficulties[self.difficulty])
@@ -1093,9 +1093,9 @@ class StarCraft2Env(MultiAgentEnv):
         if self._sc2_proc:
             self._sc2_proc.close()
 
-    def seed(self):
+    def seed(self, *args):
         """Returns the random seed used by the environment."""
-        return self.seed
+        return self._seed
 
     def render(self):
         """Not implemented."""
