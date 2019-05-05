@@ -1093,7 +1093,7 @@ class StarCraft2Env(MultiAgentEnv):
         if self._sc2_proc:
             self._sc2_proc.close()
 
-    def seed(self, *args):
+    def seed(self):
         """Returns the random seed used by the environment."""
         return self._seed
 
