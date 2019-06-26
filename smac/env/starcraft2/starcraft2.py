@@ -302,11 +302,20 @@ class StarCraft2Env(MultiAgentEnv):
         self.max_distance_y = map_play_area_max.y - map_play_area_min.y
         self.map_x = map_info.map_size.x
         self.map_y = map_info.map_size.y
+
+        if map_info.pathing_grid.bits_per_pixel == 1:
+            vals = np.array(list(map_info.pathing_grid.data)).reshape(
+                self.map_x, int(self.map_y / 8))
+            self.pathing_grid = np.transpose(np.array([
+                [(b >> i) & 1 for b in row for i in range(7, -1, -1)]
+                for row in vals], dtype=np.bool))
+        else:
+            self.pathing_grid = np.invert(np.flip(np.transpose(np.array(
+                list(map_info.pathing_grid.data), dtype=np.bool).reshape(
+                    self.map_x, self.map_y)), axis=1))
+
         self.terrain_height = np.flip(
             np.transpose(np.array(list(map_info.terrain_height.data))
-                .reshape(self.map_x, self.map_y)), 1) / 255
-        self.pathing_grid = np.flip(
-            np.transpose(np.array(list(map_info.pathing_grid.data))
                 .reshape(self.map_x, self.map_y)), 1) / 255
 
     def reset(self):
@@ -645,7 +654,7 @@ class StarCraft2Env(MultiAgentEnv):
         else:
             x, y = int(unit.pos.x - m), int(unit.pos.y)
 
-        if self.check_bounds(x, y) and self.pathing_grid[x, y] == 0:
+        if self.check_bounds(x, y) and self.pathing_grid[x, y]:
             return True
 
         return False
