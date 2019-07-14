@@ -334,6 +334,8 @@ class StarCraft2Env(MultiAgentEnv):
         self.death_tracker_enemy = np.zeros(self.n_enemies)
         self.previous_ally_units = None
         self.previous_enemy_units = None
+        self.win_counted = False
+        self.defeat_counted = False
 
         self.last_action = np.zeros((self.n_agents, self.n_actions))
 
@@ -408,14 +410,16 @@ class StarCraft2Env(MultiAgentEnv):
             # Battle is over
             terminated = True
             self.battles_game += 1
-            if game_end_code == 1:
+            if game_end_code == 1 and not self.win_counted:
                 self.battles_won += 1
+                self.win_counted = True
                 info["battle_won"] = True
                 if not self.reward_sparse:
                     reward += self.reward_win
                 else:
                     reward = 1
-            elif game_end_code == -1:
+            elif game_end_code == -1 and not self.defeat_counted:
+                self.defeat_counted = True
                 if not self.reward_sparse:
                     reward += self.reward_defeat
                 else:
