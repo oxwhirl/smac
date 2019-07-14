@@ -76,7 +76,9 @@ class StarCraft2Env(MultiAgentEnv):
         obs_pathing_grid=False,
         obs_terrain_height=False,
         obs_instead_of_state=False,
+        obs_timestep_number=False,
         state_last_action=True,
+        state_timestep_number=False,
         reward_sparse=False,
         reward_only_positive=True,
         reward_death_value=10,
@@ -132,9 +134,15 @@ class StarCraft2Env(MultiAgentEnv):
         obs_instead_of_state : bool, optional
             Use combination of all agents' observations as the global state
             (default is False).
+        obs_timestep_number : bool, optional
+            Whether observations include the current timestep of the episode
+            (default is False).
         state_last_action : bool, optional
             Include the last actions of all agents as part of the global state
             (default is True).
+        state_timestep_number : bool, optional
+            Whether the state include the current timestep of the episode
+            (default is False).
         reward_sparse : bool, optional
             Receive 1/-1 reward for winning/loosing an episode (default is
             False). Whe rest of reward parameters are ignored if True.
@@ -192,7 +200,9 @@ class StarCraft2Env(MultiAgentEnv):
         self.obs_last_action = obs_last_action
         self.obs_pathing_grid = obs_pathing_grid
         self.obs_terrain_height = obs_terrain_height
+        self.obs_timestep_number = obs_timestep_number
         self.state_last_action = state_last_action
+        self.state_timestep_number = state_timestep_number
         if self.obs_all_health:
             self.obs_own_health = True
         self.n_obs_pathing = 8
@@ -862,6 +872,9 @@ class StarCraft2Env(MultiAgentEnv):
             )
         )
 
+        if self.obs_timestep_number:
+            agent_obs = np.append(agent_obs, self._episode_steps)
+
         if self.debug:
             logging.debug("Obs Agent: {}".format(agent_id).center(60, "-"))
             logging.debug("Avail. actions {}".format(
@@ -967,6 +980,9 @@ class StarCraft2Env(MultiAgentEnv):
         state = np.append(ally_state.flatten(), enemy_state.flatten())
         if self.state_last_action:
             state = np.append(state, self.last_action.flatten())
+        if self.state_timestep_number:
+            state = np.append(state, self._episode_steps)
+
         state = state.astype(dtype=np.float32)
 
         if self.debug:
@@ -990,6 +1006,8 @@ class StarCraft2Env(MultiAgentEnv):
         own_feats = self.unit_type_bits
         if self.obs_own_health:
             own_feats += 1 + self.shield_bits_ally
+        if self.obs_timestep_number:
+            own_feats += 1
 
         if self.obs_last_action:
             nf_al += self.n_actions
@@ -1020,6 +1038,8 @@ class StarCraft2Env(MultiAgentEnv):
 
         if self.state_last_action:
             size += self.n_agents * self.n_actions
+        if self.state_timestep_number:
+            size += 1
 
         return size
 
