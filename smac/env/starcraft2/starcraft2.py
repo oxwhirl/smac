@@ -873,7 +873,8 @@ class StarCraft2Env(MultiAgentEnv):
         )
 
         if self.obs_timestep_number:
-            agent_obs = np.append(agent_obs, self._episode_steps)
+            agent_obs = np.append(agent_obs,
+                                  self._episode_steps / self.episode_limit)
 
         if self.debug:
             logging.debug("Obs Agent: {}".format(agent_id).center(60, "-"))
@@ -981,7 +982,8 @@ class StarCraft2Env(MultiAgentEnv):
         if self.state_last_action:
             state = np.append(state, self.last_action.flatten())
         if self.state_timestep_number:
-            state = np.append(state, self._episode_steps)
+            state = np.append(state,
+                              self._episode_steps / self.episode_limit)
 
         state = state.astype(dtype=np.float32)
 
