@@ -149,6 +149,15 @@ map_param_registry = {
         "unit_type_bits": 0,
         "map_type": "stalkers",
     },
+    "1c3s5z": {
+        "n_agents": 9,
+        "n_enemies": 9,
+        "limit": 180,
+        "a_race": "P",
+        "b_race": "P",
+        "unit_type_bits": 3,
+        "map_type": "colossi_stalkers_zealots",
+    },
     "2m_vs_1z": {
         "n_agents": 2,
         "n_enemies": 1,
