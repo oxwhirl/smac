@@ -1,5 +1,5 @@
 ```diff
-- SMAC V1 - SMAC is now more streamlined requiring significantly less compute! Please see the [paper](https://arxiv.org/abs/1902.04043) for more details.
+- SMAC V1 - SMAC is now more streamlined requiring significantly less compute! See paper for details.
 ```
 
 # SMAC - StarCraft Multi-Agent Challenge
