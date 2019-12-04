@@ -1,5 +1,5 @@
 ```diff
-- This is a BETA release.
+- SMAC V1 - SMAC is now more streamlined requiring significantly less compute! Please see the [paper](https://arxiv.org/abs/1902.04043) for more details.
 ```
 
 # SMAC - StarCraft Multi-Agent Challenge
@@ -14,6 +14,8 @@ Please refer to the accompanying [paper](https://arxiv.org/abs/1902.04043) and [
 Together with SMAC we also release [PyMARL](https://github.com/oxwhirl/pymarl) - our [PyTorch](https://github.com/pytorch/pytorch) framework for MARL research, which includes implementations of several state-of-the-art algorithms, such as [QMIX](https://arxiv.org/abs/1803.11485) and [COMA](https://arxiv.org/abs/1705.08926).
 
 Should you have any question, please reach to [mikayel@samvelyan.com](mailto:mikayel@samvelyan.com) or [tabish.rashid@cs.ox.ac.uk](mailto:tabish.rashid@cs.ox.ac.uk).
+
+Data from the runs used in the paper is included [here](https://github.com/oxwhirl/smac/releases/download/v1/smac_run_data.json).
 
 
 # Quick Start
