@@ -599,6 +599,9 @@ class StarCraft2Env(MultiAgentEnv):
                             min_dist = dist
                             min_id = e_id
                 self.heuristic_targets[a_id] = min_id
+                if min_id == -1:
+                    self.heuristic_targets[a_id] = None
+                    return None
             action_id = actions['attack']
             target_tag = self.enemies[self.heuristic_targets[a_id]].tag
 
