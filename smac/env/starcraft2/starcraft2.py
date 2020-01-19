@@ -92,6 +92,7 @@ class StarCraft2Env(MultiAgentEnv):
         window_size_x=1920,
         window_size_y=1200,
         heuristic_ai=False,
+        heuristic_rest=False,
         debug=False,
     ):
         """
@@ -182,6 +183,10 @@ class StarCraft2Env(MultiAgentEnv):
             The height of StarCraft II window size (default is 1200).
         heuristic_ai: bool, optional
             Whether or not to use a non-learning heuristic AI (default False).
+        heuristic_rest: bool, optional
+            At any moment, restrict the actions of the heuristic AI to be
+            chosen from actions available to RL agents (default is False).
+            Ignored if heuristic_ai == False.
         debug: bool, optional
             Log messages about observations, state, actions and rewards for
             debugging purposes (default is False).
@@ -226,6 +231,7 @@ class StarCraft2Env(MultiAgentEnv):
         self.continuing_episode = continuing_episode
         self._seed = seed
         self.heuristic_ai = heuristic_ai
+        self.heuristic_rest = heuristic_rest
         self.debug = debug
         self.window_size = (window_size_x, window_size_y)
         self.replay_dir = replay_dir
@@ -609,11 +615,50 @@ class StarCraft2Env(MultiAgentEnv):
 
         action_num = self.heuristic_targets[a_id] + self.n_actions_no_attack
 
-        cmd = r_pb.ActionRawUnitCommand(
-            ability_id = action_id,
-            target_unit_tag = target_tag,
-            unit_tags = [tag],
-            queue_command = False)
+        # Check if the action is available
+        if (self.heuristic_rest and
+            self.get_avail_agent_actions(a_id)[action_num] == 0):
+
+            # Move towards the target rather than attacking/healing
+            if unit.unit_type == self.medivac_id:
+                target_unit = self.agents[self.heuristic_targets[a_id]]
+            else:
+                target_unit = self.enemies[self.heuristic_targets[a_id]]
+
+            delta_x = target_unit.pos.x - unit.pos.x
+            delta_y = target_unit.pos.y - unit.pos.y
+
+            if abs(delta_x) > abs(delta_y): # east or west
+                if delta_x > 0: # east
+                    target_pos=sc_common.Point2D(
+                        x=unit.pos.x + self._move_amount, y=unit.pos.y)
+                    action_num = 4
+                else: # west
+                    target_pos=sc_common.Point2D(
+                        x=unit.pos.x - self._move_amount, y=unit.pos.y)
+                    action_num = 5
+            else: # north or south
+                if delta_y > 0: # north
+                    target_pos=sc_common.Point2D(
+                        x=unit.pos.x, y=unit.pos.y + self._move_amount)
+                    action_num = 2
+                else: # south
+                    target_pos=sc_common.Point2D(
+                        x=unit.pos.x, y=unit.pos.y - self._move_amount)
+                    action_num = 3
+
+            cmd = r_pb.ActionRawUnitCommand(
+                ability_id = actions['move'],
+                target_world_space_pos = target_pos,
+                unit_tags = [tag],
+                queue_command = False)
+        else:
+            # Attack/heal the target
+            cmd = r_pb.ActionRawUnitCommand(
+                ability_id = action_id,
+                target_unit_tag = target_tag,
+                unit_tags = [tag],
+                queue_command = False)
 
         sc_action = sc_pb.Action(action_raw=r_pb.ActionRaw(unit_command=cmd))
         return sc_action, action_num
