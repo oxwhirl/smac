@@ -386,22 +386,24 @@ class StarCraft2Env(MultiAgentEnv):
 
     def step(self, actions):
         """A single environment step. Returns reward, terminated, info."""
-        actions = [int(a) for a in actions]
+        actions_int = [int(a) for a in actions]
 
-        self.last_action = np.eye(self.n_actions)[np.array(actions)]
+        self.last_action = np.eye(self.n_actions)[np.array(actions_int)]
 
         # Collect individual actions
         sc_actions = []
         if self.debug:
             logging.debug("Actions".center(60, "-"))
 
-        for a_id, action in enumerate(actions):
+        for a_id, action in enumerate(actions_int):
             if not self.heuristic_ai:
-                agent_action = self.get_agent_action(a_id, action)
+                sc_action = self.get_agent_action(a_id, action)
             else:
-                agent_action = self.get_agent_action_heuristic(a_id, action)
-            if agent_action:
-                sc_actions.append(agent_action)
+                sc_action, action_num = self.get_agent_action_heuristic(
+                    a_id, action)
+                actions[a_id] = action_num
+            if sc_action:
+                sc_actions.append(sc_action)
 
         # Send action request
         req_actions = sc_pb.RequestAction(actions=sc_actions)
@@ -581,7 +583,7 @@ class StarCraft2Env(MultiAgentEnv):
                 self.heuristic_targets[a_id] = min_id
                 if min_id == -1:
                     self.heuristic_targets[a_id] = None
-                    return None
+                    return None, 0
             action_id = actions['heal']
             target_tag = self.agents[self.heuristic_targets[a_id]].tag
         else:
@@ -601,9 +603,11 @@ class StarCraft2Env(MultiAgentEnv):
                 self.heuristic_targets[a_id] = min_id
                 if min_id == -1:
                     self.heuristic_targets[a_id] = None
-                    return None
+                    return None, 0
             action_id = actions['attack']
             target_tag = self.enemies[self.heuristic_targets[a_id]].tag
+
+        action_num = self.heuristic_targets[a_id] + self.n_actions_no_attack
 
         cmd = r_pb.ActionRawUnitCommand(
             ability_id = action_id,
@@ -612,7 +616,7 @@ class StarCraft2Env(MultiAgentEnv):
             queue_command = False)
 
         sc_action = sc_pb.Action(action_raw=r_pb.ActionRaw(unit_command=cmd))
-        return sc_action
+        return sc_action, action_num
 
     def reward_battle(self):
         """Reward function when self.reward_spare==False.
