@@ -1110,32 +1110,56 @@ class StarCraft2Env(MultiAgentEnv):
 
         return state
 
-    def get_obs_size(self):
+    def get_obs_enemy_feats_size(self):
         """Returns the size of the observation."""
-        nf_al = 4 + self.unit_type_bits
         nf_en = 4 + self.unit_type_bits
 
         if self.obs_all_health:
-            nf_al += 1 + self.shield_bits_ally
             nf_en += 1 + self.shield_bits_enemy
 
+        enemy_feats = self.n_enemies * nf_en
+        return enemy_feats
+
+    def get_obs_ally_feats_size(self):
+        """Returns the size of the observation."""
+        nf_al = 4 + self.unit_type_bits
+
+        if self.obs_all_health:
+            nf_al += 1 + self.shield_bits_ally
+
+        if self.obs_last_action:
+            nf_al += self.n_actions
+
+        ally_feats = (self.n_agents - 1) * nf_al
+
+        return ally_feats
+
+    def get_obs_own_feats_size(self):
+        """Returns the size of the observation."""
         own_feats = self.unit_type_bits
         if self.obs_own_health:
             own_feats += 1 + self.shield_bits_ally
         if self.obs_timestep_number:
             own_feats += 1
 
-        if self.obs_last_action:
-            nf_al += self.n_actions
+        return own_feats
 
+    def get_obs_move_feats_size(self):
+        """Returns the size of the observation."""
         move_feats = self.n_actions_move
         if self.obs_pathing_grid:
             move_feats += self.n_obs_pathing
         if self.obs_terrain_height:
             move_feats += self.n_obs_height
 
-        enemy_feats = self.n_enemies * nf_en
-        ally_feats = (self.n_agents - 1) * nf_al
+        return move_feats
+
+    def get_obs_size(self):
+        """Returns the size of the observation."""
+        own_feats = self.get_obs_own_feats_size()
+        move_feats = self.get_obs_move_feats_size()
+        enemy_feats = self.get_obs_enemy_feats_size()
+        ally_feats = self.get_obs_ally_feats_size()
 
         return move_feats + enemy_feats + ally_feats + own_feats
 
