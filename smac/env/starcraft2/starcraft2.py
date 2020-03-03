@@ -1122,8 +1122,7 @@ class StarCraft2Env(MultiAgentEnv):
         if self.obs_all_health:
             nf_en += 1 + self.shield_bits_enemy
 
-        enemy_feats = self.n_enemies * nf_en
-        return enemy_feats
+        return self.n_enemies, nf_en
 
     def get_obs_ally_feats_size(self):
         """Returns the size of the observation."""
@@ -1135,9 +1134,7 @@ class StarCraft2Env(MultiAgentEnv):
         if self.obs_last_action:
             nf_al += self.n_actions
 
-        ally_feats = (self.n_agents - 1) * nf_al
-
-        return ally_feats
+        return self.n_agents - 1, nf_al
 
     def get_obs_own_feats_size(self):
         """Returns the size of the observation."""
@@ -1163,8 +1160,12 @@ class StarCraft2Env(MultiAgentEnv):
         """Returns the size of the observation."""
         own_feats = self.get_obs_own_feats_size()
         move_feats = self.get_obs_move_feats_size()
-        enemy_feats = self.get_obs_enemy_feats_size()
-        ally_feats = self.get_obs_ally_feats_size()
+
+        n_enemies, n_enemy_feats = self.get_obs_enemy_feats_size()
+        n_allies, n_ally_feats = self.get_obs_ally_feats_size()
+
+        enemy_feats = n_enemies*n_enemy_feats
+        ally_feats = n_allies*n_ally_feats
 
         return move_feats + enemy_feats + ally_feats + own_feats
 
