@@ -859,6 +859,11 @@ class StarCraft2Env(MultiAgentEnv):
         if self.obs_terrain_height:
             move_feats_len += self.n_obs_height
 
+        assert move_feats_len == self.get_obs_move_feats_size()
+        assert self.n_enemies * nf_en == self.get_obs_enemy_feats_size()
+        assert (self.n_agents - 1) * nf_al == self.get_obs_ally_feats_size()
+        assert nf_own == self.get_obs_own_feats_size()
+
         move_feats = np.zeros(move_feats_len, dtype=np.float32)
         enemy_feats = np.zeros((self.n_enemies, nf_en), dtype=np.float32)
         ally_feats = np.zeros((self.n_agents - 1, nf_al), dtype=np.float32)
