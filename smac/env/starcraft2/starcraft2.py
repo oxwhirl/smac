@@ -1159,6 +1159,41 @@ class StarCraft2Env(MultiAgentEnv):
 
         return size
 
+    def get_visibility_matrix(self):
+        """Returns a boolean numpy array of dimensions (n_agents, n_agents + n_enemies)
+        indicating which units are visible to each agent."""
+        arr = np.zeros((self.n_agents, self.n_agents + self.n_enemies), dtype=np.bool)
+
+        for agent_id in range(self.n_agents):
+            current_agent = self.get_unit_by_id(agent_id)
+            if current_agent.health > 0:  # it agent not dead
+                x = current_agent.pos.x
+                y = current_agent.pos.y
+                sight_range = self.unit_sight_range(agent_id)
+
+                # Enemies
+                for e_id, e_unit in self.enemies.items():
+                    e_x = e_unit.pos.x
+                    e_y = e_unit.pos.y
+                    dist = self.distance(x, y, e_x, e_y)
+
+                    if (dist < sight_range and e_unit.health > 0):  # visible and alive
+                        arr[agent_id, self.n_agents + e_id] = 1
+
+                # the allies part of the matrix is filled symmetrically
+                # this may not work when units have different sight distances
+                al_ids = [al_id for al_id in range(self.n_agents) if al_id > agent_id]
+                for i, al_id in enumerate(al_ids):
+                    al_unit = self.get_unit_by_id(al_id)
+                    al_x = al_unit.pos.x
+                    al_y = al_unit.pos.y
+                    dist = self.distance(x, y, al_x, al_y)
+
+                    if (dist < sight_range and al_unit.health > 0):  # visible and alive
+                        arr[agent_id, al_id] = arr[al_id, agent_id] = 1
+
+        return arr
+
     def get_unit_type_id(self, unit, ally):
         """Returns the ID of unit type in the given scenario."""
         if ally:  # use new SC2 unit types

@@ -24,6 +24,8 @@ def main():
             obs = env.get_obs()
             state = env.get_state()
 
+            arr = env.get_visibility_matrix()
+
             actions = []
             for agent_id in range(n_agents):
                 avail_actions = env.get_avail_agent_actions(agent_id)
