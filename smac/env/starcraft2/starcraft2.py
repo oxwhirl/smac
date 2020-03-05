@@ -833,36 +833,36 @@ class StarCraft2Env(MultiAgentEnv):
         return vals
 
     def get_obs_agent(self, agent_id):
-        """Returns observation for agent_id.
-        NOTE: Agents should have access only to their local observations
-        during decentralised execution.
+        """Returns observation for agent_id. The observation is composed of:
+
+           - agent movement features (where it can move to, height information and pathing grid)
+           - enemy features (available_to_attack, health, relative_x, relative_y, shield, unit_type)
+           - ally features (visible, distance, relative_x, relative_y, shield, unit_type)
+           - agent unit features (health, shield, unit_type)
+
+           All of this information is flattened and concatenated into a list, in the aforementioned order. To know the
+           sizes of each of the features inside the final list of features, take a look at the functions
+           ``get_obs_move_feats_size()``, ``get_obs_enemy_feats_size()``, ``get_obs_ally_feats_size()`` and
+           ``get_obs_own_feats_size()``.
+
+           The size of the observation vector may vary, depending on the environment configuration and type of units
+           present in the map. (*e.g.* non-Protoss units will not have shields, movement features may or may not
+           include terrain height and pathing grid, unit_type is not included if there is only one type of unit in the
+           map etc.).
+
+           NOTE: Agents should have access only to their local observations during decentralized execution.
         """
         unit = self.get_unit_by_id(agent_id)
 
-        nf_al = 4 + self.unit_type_bits
-        nf_en = 4 + self.unit_type_bits
+        move_feats_dim = self.get_obs_move_feats_size()
+        enemy_feats_dim = self.get_obs_enemy_feats_size()
+        ally_feats_dim = self.get_obs_ally_feats_size()
+        own_feats_dim = self.get_obs_own_feats_size()
 
-        if self.obs_all_health:
-            nf_al += 1 + self.shield_bits_ally
-            nf_en += 1 + self.shield_bits_enemy
-
-        if self.obs_last_action:
-            nf_al += self.n_actions
-
-        nf_own = self.unit_type_bits
-        if self.obs_own_health:
-            nf_own += 1 + self.shield_bits_ally
-
-        move_feats_len = self.n_actions_move
-        if self.obs_pathing_grid:
-            move_feats_len += self.n_obs_pathing
-        if self.obs_terrain_height:
-            move_feats_len += self.n_obs_height
-
-        move_feats = np.zeros(move_feats_len, dtype=np.float32)
-        enemy_feats = np.zeros((self.n_enemies, nf_en), dtype=np.float32)
-        ally_feats = np.zeros((self.n_agents - 1, nf_al), dtype=np.float32)
-        own_feats = np.zeros(nf_own, dtype=np.float32)
+        move_feats = np.zeros(move_feats_dim, dtype=np.float32)
+        enemy_feats = np.zeros(enemy_feats_dim, dtype=np.float32)
+        ally_feats = np.zeros(ally_feats_dim, dtype=np.float32)
+        own_feats = np.zeros(own_feats_dim, dtype=np.float32)
 
         if unit.health > 0:  # otherwise dead, return all zeros
             x = unit.pos.x
@@ -1110,32 +1110,57 @@ class StarCraft2Env(MultiAgentEnv):
 
         return state
 
-    def get_obs_size(self):
-        """Returns the size of the observation."""
-        nf_al = 4 + self.unit_type_bits
+    def get_obs_enemy_feats_size(self):
+        """Returns the dimensions of the matrix containing enemy features. Size is n_enemies x n_features"""
         nf_en = 4 + self.unit_type_bits
 
         if self.obs_all_health:
-            nf_al += 1 + self.shield_bits_ally
             nf_en += 1 + self.shield_bits_enemy
 
+        return self.n_enemies, nf_en
+
+    def get_obs_ally_feats_size(self):
+        """Returns the dimensions of the matrix containing ally features. Size is n_allies x n_features"""
+        nf_al = 4 + self.unit_type_bits
+
+        if self.obs_all_health:
+            nf_al += 1 + self.shield_bits_ally
+
+        if self.obs_last_action:
+            nf_al += self.n_actions
+
+        return self.n_agents - 1, nf_al
+
+    def get_obs_own_feats_size(self):
+        """Returns the size of the vector containing the agents's own features."""
         own_feats = self.unit_type_bits
         if self.obs_own_health:
             own_feats += 1 + self.shield_bits_ally
         if self.obs_timestep_number:
             own_feats += 1
 
-        if self.obs_last_action:
-            nf_al += self.n_actions
+        return own_feats
 
+    def get_obs_move_feats_size(self):
+        """Returns the size of the vector containing the agents's movement-related features."""
         move_feats = self.n_actions_move
         if self.obs_pathing_grid:
             move_feats += self.n_obs_pathing
         if self.obs_terrain_height:
             move_feats += self.n_obs_height
 
-        enemy_feats = self.n_enemies * nf_en
-        ally_feats = (self.n_agents - 1) * nf_al
+        return move_feats
+
+    def get_obs_size(self):
+        """Returns the size of the observation."""
+        own_feats = self.get_obs_own_feats_size()
+        move_feats = self.get_obs_move_feats_size()
+
+        n_enemies, n_enemy_feats = self.get_obs_enemy_feats_size()
+        n_allies, n_ally_feats = self.get_obs_ally_feats_size()
+
+        enemy_feats = n_enemies*n_enemy_feats
+        ally_feats = n_allies*n_ally_feats
 
         return move_feats + enemy_feats + ally_feats + own_feats
 
