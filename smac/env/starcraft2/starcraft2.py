@@ -840,17 +840,22 @@ class StarCraft2Env(MultiAgentEnv):
            - ally features (visible, distance, relative_x, relative_y, shield, unit_type)
            - agent unit features (health, shield, unit_type)
 
-           All of this information is flattened and concatenated into a list, in the aforementioned order. To know the
-           sizes of each of the features inside the final list of features, take a look at the functions
-           ``get_obs_move_feats_size()``, ``get_obs_enemy_feats_size()``, ``get_obs_ally_feats_size()`` and
+           All of this information is flattened and concatenated into a list,
+           in the aforementioned order. To know the sizes of each of the
+           features inside the final list of features, take a look at the
+           functions ``get_obs_move_feats_size()``,
+           ``get_obs_enemy_feats_size()``, ``get_obs_ally_feats_size()`` and
            ``get_obs_own_feats_size()``.
 
-           The size of the observation vector may vary, depending on the environment configuration and type of units
-           present in the map. (*e.g.* non-Protoss units will not have shields, movement features may or may not
-           include terrain height and pathing grid, unit_type is not included if there is only one type of unit in the
+           The size of the observation vector may vary, depending on the
+           environment configuration and type of units present in the map.
+           For instance, non-Protoss units will not have shields, movement
+           features may or may not include terrain height and pathing grid,
+           unit_type is not included if there is only one type of unit in the
            map etc.).
 
-           NOTE: Agents should have access only to their local observations during decentralized execution.
+           NOTE: Agents should have access only to their local observations
+           during decentralised execution.
         """
         unit = self.get_unit_by_id(agent_id)
 
@@ -1111,7 +1116,9 @@ class StarCraft2Env(MultiAgentEnv):
         return state
 
     def get_obs_enemy_feats_size(self):
-        """Returns the dimensions of the matrix containing enemy features. Size is n_enemies x n_features"""
+        """ Returns the dimensions of the matrix containing enemy features.
+        Size is n_enemies x n_features.
+        """
         nf_en = 4 + self.unit_type_bits
 
         if self.obs_all_health:
@@ -1120,7 +1127,9 @@ class StarCraft2Env(MultiAgentEnv):
         return self.n_enemies, nf_en
 
     def get_obs_ally_feats_size(self):
-        """Returns the dimensions of the matrix containing ally features. Size is n_allies x n_features"""
+        """Returns the dimensions of the matrix containing ally features.
+        Size is n_allies x n_features.
+        """
         nf_al = 4 + self.unit_type_bits
 
         if self.obs_all_health:
@@ -1132,7 +1141,8 @@ class StarCraft2Env(MultiAgentEnv):
         return self.n_agents - 1, nf_al
 
     def get_obs_own_feats_size(self):
-        """Returns the size of the vector containing the agents's own features."""
+        """Returns the size of the vector containing the agents' own features.
+        """
         own_feats = self.unit_type_bits
         if self.obs_own_health:
             own_feats += 1 + self.shield_bits_ally
@@ -1159,8 +1169,8 @@ class StarCraft2Env(MultiAgentEnv):
         n_enemies, n_enemy_feats = self.get_obs_enemy_feats_size()
         n_allies, n_ally_feats = self.get_obs_ally_feats_size()
 
-        enemy_feats = n_enemies*n_enemy_feats
-        ally_feats = n_allies*n_ally_feats
+        enemy_feats = n_enemies * n_enemy_feats
+        ally_feats = n_allies * n_ally_feats
 
         return move_feats + enemy_feats + ally_feats + own_feats
 
