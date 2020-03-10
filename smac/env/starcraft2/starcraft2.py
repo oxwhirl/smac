@@ -254,6 +254,19 @@ class StarCraft2Env(MultiAgentEnv):
             self.n_enemies * self.reward_death_value + self.reward_win
         )
 
+        self.ally_attr_names = ['health', 'energy/cooldown', 'rel_x', 'rel_y']
+        self.enemy_attr_names = ['health', 'rel_x', 'rel_y']
+
+        if self.shield_bits_ally > 0:
+            self.ally_attr_names += ['shield']
+        if self.shield_bits_enemy > 0:
+            self.enemy_attr_names += ['shield']
+
+        if self.unit_type_bits > 0:
+            utb_str = 'type_{}'.format(self.unit_type_bits)
+            self.ally_attr_names += [utb_str]
+            self.enemy_attr_names += [utb_str]
+
         self.agents = {}
         self.enemies = {}
         self._episode_count = 0
@@ -1038,6 +1051,12 @@ class StarCraft2Env(MultiAgentEnv):
 
         return state
 
+    def get_ally_num_attributes(self):
+        return len(self.ally_attr_names)
+
+    def get_enemy_num_attributes(self):
+        return len(self.enemy_attr_names)
+
     def get_state_dict(self):
         """Returns the global state as a dictionary.
 
@@ -1091,13 +1110,11 @@ class StarCraft2Env(MultiAgentEnv):
 
                 ind = 4
                 if self.shield_bits_ally > 0:
-                    ally_attributes += ['shield']
                     max_shield = self.unit_max_shield(al_unit)
                     ally_state[al_id, ind] = (al_unit.shield / max_shield)  # shield
                     ind += 1
 
                 if self.unit_type_bits > 0:
-                    ally_attributes += ['type_{}'.format(self.unit_type_bits)]
                     type_id = self.get_unit_type_id(al_unit, True)
                     ally_state[al_id, ind + type_id] = 1
 
@@ -1118,7 +1135,6 @@ class StarCraft2Env(MultiAgentEnv):
 
                 ind = 3
                 if self.shield_bits_enemy > 0:
-                    enemy_attributes += ['shield']
                     max_shield = self.unit_max_shield(e_unit)
                     enemy_state[e_id, ind] = (
                         e_unit.shield / max_shield
@@ -1126,15 +1142,12 @@ class StarCraft2Env(MultiAgentEnv):
                     ind += 1
 
                 if self.unit_type_bits > 0:
-                    enemy_attributes += ['type_{}'.format(self.unit_type_bits)]
                     type_id = self.get_unit_type_id(e_unit, False)
                     enemy_state[e_id, ind + type_id] = 1
 
         state = {
             'allies': ally_state,
-            'enemies': enemy_state,
-            'ally_attributes': ally_attributes,
-            'enemy_attributes': enemy_attributes
+            'enemies': enemy_state
         }
 
         if self.unit_type_bits > 0:
@@ -1475,3 +1488,18 @@ class StarCraft2Env(MultiAgentEnv):
             "restarts": self.force_restarts,
         }
         return stats
+
+    def get_env_info(self):
+        env_info = {
+            "state_shape": self.get_state_size(),
+            "obs_shape": self.get_obs_size(),
+            "n_actions": self.get_total_actions(),
+            "n_agents": self.n_agents,
+            "episode_limit": self.episode_limit,
+            "agent_features": self.ally_attr_names,
+            "enemy_features": self.enemy_attr_names,
+            "n_agent_features": self.get_ally_num_features(),
+            "n_enemy_features": self.get_enemy_num_features()
+
+        }
+        return env_info
