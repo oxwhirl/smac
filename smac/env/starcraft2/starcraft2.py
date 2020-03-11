@@ -1080,9 +1080,6 @@ class StarCraft2Env(MultiAgentEnv):
         center_x = self.map_x / 2
         center_y = self.map_y / 2
 
-        ally_attributes = ['health', 'energy/cooldown', 'rel_x', 'rel_y']
-        enemy_attributes = ['health', 'rel_x', 'rel_y']
-
         for al_id, al_unit in self.agents.items():
             if al_unit.health > 0:
                 x = al_unit.pos.x
