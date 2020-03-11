@@ -1498,8 +1498,8 @@ class StarCraft2Env(MultiAgentEnv):
             "episode_limit": self.episode_limit,
             "agent_features": self.ally_attr_names,
             "enemy_features": self.enemy_attr_names,
-            "n_agent_features": self.get_ally_num_features(),
-            "n_enemy_features": self.get_enemy_num_features()
+            "n_agent_features": self.get_ally_num_attributes(),
+            "n_enemy_features": self.get_enemy_num_attributes()
 
         }
         return env_info
