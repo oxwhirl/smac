@@ -1069,7 +1069,7 @@ class StarCraft2Env(MultiAgentEnv):
         - last_action: numpy array of previous actions for each agent
         - timestep: current no. of steps divided by total no. of steps
         
-        NOTE: This functon should not be used during decentralised execution.
+        NOTE: This function should not be used during decentralised execution.
         """
         nf_al = 4 + self.shield_bits_ally + self.unit_type_bits
         nf_en = 3 + self.shield_bits_enemy + self.unit_type_bits
