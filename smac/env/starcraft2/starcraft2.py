@@ -1057,7 +1057,7 @@ class StarCraft2Env(MultiAgentEnv):
     def get_enemy_num_attributes(self):
         return len(self.enemy_attr_names)
 
-    def get_state_dict(self):
+    def get_state_dict(self, use_sc2_unit_types=False):
         """Returns the global state as a dictionary.
 
         - allies: numpy array containing agents and their attributes
@@ -1070,12 +1070,16 @@ class StarCraft2Env(MultiAgentEnv):
         - timestep: current no. of steps divided by total no. of steps
         
         NOTE: This function should not be used during decentralised execution.
+
+        :param use_sc2_unit_types: replace SMAC unit type IDs whith SC2 unit types, defaults to False
+        :type use_sc2_unit_types: bool, optional
         """
         nf_al = 4 + self.shield_bits_ally + self.unit_type_bits
         nf_en = 3 + self.shield_bits_enemy + self.unit_type_bits
 
         ally_state = np.zeros((self.n_agents, nf_al))
         enemy_state = np.zeros((self.n_enemies, nf_en))
+        unit_types = []
 
         center_x = self.map_x / 2
         center_y = self.map_y / 2
@@ -1111,9 +1115,14 @@ class StarCraft2Env(MultiAgentEnv):
                     ally_state[al_id, ind] = (al_unit.shield / max_shield)  # shield
                     ind += 1
 
-                if self.unit_type_bits > 0:
-                    type_id = self.get_unit_type_id(al_unit, True)
-                    ally_state[al_id, ind + type_id] = 1
+                if self.unit_type_bits > 0 or use_sc2_unit_types:
+                    if self.unit_type_bits > 0:
+                        type_id = self.get_unit_type_id(al_unit, True)
+                        ally_state[al_id, ind + type_id] = 1
+                        if not use_sc2_unit_types:
+                            unit_types += [type_id]
+                    if use_sc2_unit_types:
+                        unit_types += [al_unit.unit_type]
 
         for e_id, e_unit in self.enemies.items():
             if e_unit.health > 0:
@@ -1138,20 +1147,21 @@ class StarCraft2Env(MultiAgentEnv):
                     )  # shield
                     ind += 1
 
+                if self.unit_type_bits > 0 or use_sc2_unit_types:
+                    if self.unit_type_bits > 0:
+                        type_id = self.get_unit_type_id(e_unit, False)
+                        enemy_state[e_id, ind + type_id] = 1
+                        if not use_sc2_unit_types:
+                            unit_types += [type_id]
+                    if use_sc2_unit_types:
+                        unit_types += [e_unit.unit_type]
+
                 if self.unit_type_bits > 0:
-                    type_id = self.get_unit_type_id(e_unit, False)
-                    enemy_state[e_id, ind + type_id] = 1
 
-        state = {
-            'allies': ally_state,
-            'enemies': enemy_state
-        }
+        state = {'allies': ally_state, 'enemies': enemy_state}
 
-        if self.unit_type_bits > 0:
-            state['unit_types'] = [
-                self.get_unit_type_id(u, True) for _, u in self.agents.items()
-            ] + [self.get_unit_type_id(u, False) for _, u in self.enemies.items()]
-
+        if len(unit_types > 0):
+            state['unit_types'] = unit_types
         if self.state_last_action:
             state['last_action'] = self.last_action
         if self.state_timestep_number:
