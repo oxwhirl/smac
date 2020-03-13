@@ -1156,11 +1156,9 @@ class StarCraft2Env(MultiAgentEnv):
                     if use_sc2_unit_types:
                         unit_types += [e_unit.unit_type]
 
-                if self.unit_type_bits > 0:
-
         state = {'allies': ally_state, 'enemies': enemy_state}
 
-        if len(unit_types > 0):
+        if len(unit_types) > 0:
             state['unit_types'] = unit_types
         if self.state_last_action:
             state['last_action'] = self.last_action
