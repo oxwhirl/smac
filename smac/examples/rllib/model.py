@@ -6,7 +6,7 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim
 
 from ray.rllib.models import Model
-from ray.rllib.models.misc import normc_initializer
+from ray.rllib.models.tf.misc import normc_initializer
 
 
 class MaskedActionsModel(Model):
