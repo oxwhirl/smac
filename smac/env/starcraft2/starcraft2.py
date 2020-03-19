@@ -6,6 +6,7 @@ from smac.env.multiagentenv import MultiAgentEnv
 from smac.env.starcraft2.maps import get_map_params
 
 import atexit
+from warnings import warn
 from operator import attrgetter
 from copy import deepcopy
 import numpy as np
@@ -249,10 +250,44 @@ class StarCraft2Env(MultiAgentEnv):
         self.shield_bits_enemy = 1 if self._bot_race == "P" else 0
         self.unit_type_bits = map_params["unit_type_bits"]
         self.map_type = map_params["map_type"]
+        self._unit_types = None
 
         self.max_reward = (
             self.n_enemies * self.reward_death_value + self.reward_win
         )
+
+        # create lists containing the names of attributes returned in states and observations
+        self.ally_state_attr_names = ['health', 'energy/cooldown', 'rel_x', 'rel_y']
+        self.enemy_state_attr_names = ['health', 'rel_x', 'rel_y']
+
+        self.ally_obs_attr_names = ['energy/cooldown', 'rel_x', 'rel_y']
+        self.enemy_obs_attr_names = ['rel_x', 'rel_y']
+
+        if self.shield_bits_ally > 0:
+            self.ally_state_attr_names += ['shield']
+        if self.shield_bits_enemy > 0:
+            self.enemy_state_attr_names += ['shield']
+
+        if self.obs_own_health:
+            self.ally_obs_attr_names.insert(0, 'health')
+            if self.shield_bits_enemy > 0:
+                self.ally_obs_attr_names += ['shield']
+
+        if self.obs_all_health:
+            self.enemy_obs_attr_names.insert(0, 'health')
+            if self.shield_bits_enemy > 0:
+                self.enemy_obs_attr_names += ['shield']
+
+        if self.unit_type_bits > 0:
+            bit_attr_names = ['type_{}'.format(bit) for bit in range(self.unit_type_bits)]
+            self.ally_state_attr_names += bit_attr_names
+            self.enemy_state_attr_names += bit_attr_names
+
+        act_attr_names = ['action_{}'.format(act) for act in range(self.n_actions)]
+        if self.state_last_action or self.obs_instead_of_state:
+            self.ally_state_attr_names += act_attr_names
+        if self.obs_last_action:
+            self.ally_obs_attr_names += act_attr_names
 
         self.agents = {}
         self.enemies = {}
@@ -1024,8 +1059,49 @@ class StarCraft2Env(MultiAgentEnv):
             )
             return obs_concat
 
-        nf_al = 4 + self.shield_bits_ally + self.unit_type_bits
-        nf_en = 3 + self.shield_bits_enemy + self.unit_type_bits
+        state_dict = self.get_state_dict()
+
+        state = np.append(state_dict['allies'].flatten(), state_dict['enemies'].flatten())
+        if 'last_action' in state_dict:
+            state = np.append(state, state_dict['last_action'].flatten())
+        if 'timestep' in state_dict:
+            state = np.append(state, state_dict['timestep'])
+
+        state = state.astype(dtype=np.float32)
+
+        if self.debug:
+            logging.debug("STATE".center(60, "-"))
+            logging.debug("Ally state {}".format(state_dict['allies']))
+            logging.debug("Enemy state {}".format(state_dict['enemies']))
+            if self.state_last_action:
+                logging.debug("Last actions {}".format(self.last_action))
+
+        return state
+
+    def get_ally_num_attributes(self):
+        return len(self.ally_state_attr_names)
+
+    def get_enemy_num_attributes(self):
+        return len(self.enemy_state_attr_names)
+
+    def get_state_dict(self):
+        """Returns the global state as a dictionary.
+
+        - allies: numpy array containing agents and their attributes
+        - enemies: numpy array containing enemies and their attributes
+        - ally_attributes: list containing attribute names for the agent array
+        - enemy_attributes: list containing attribute names for the emey array
+        - ally_types: list containing agent types as integers
+        - enemy_types: list containing enemy types as integers
+        - last_action: numpy array of previous actions for each agent
+        - timestep: current no. of steps divided by total no. of steps
+        
+        NOTE: This function should not be used during decentralised execution.
+        """
+
+        # number of features equals the number of attribute names
+        nf_al = len(self.ally_state_attr_names)
+        nf_en = len(self.enemy_state_attr_names)
 
         ally_state = np.zeros((self.n_agents, nf_al))
         enemy_state = np.zeros((self.n_enemies, nf_en))
@@ -1058,17 +1134,15 @@ class StarCraft2Env(MultiAgentEnv):
                     y - center_y
                 ) / self.max_distance_y  # relative Y
 
-                ind = 4
                 if self.shield_bits_ally > 0:
                     max_shield = self.unit_max_shield(al_unit)
-                    ally_state[al_id, ind] = (
-                        al_unit.shield / max_shield
-                    )  # shield
-                    ind += 1
+                    ally_state[al_id, 3] = (
+                        al_unit.shield / max_shield)  # shield
 
                 if self.unit_type_bits > 0:
-                    type_id = self.get_unit_type_id(al_unit, True)
-                    ally_state[al_id, ind + type_id] = 1
+                    type_id = self.get_unit_type_id(
+                        al_unit, True)
+                    ally_state[al_id, type_id - self.unit_type_bits] = 1
 
         for e_id, e_unit in self.enemies.items():
             if e_unit.health > 0:
@@ -1085,33 +1159,22 @@ class StarCraft2Env(MultiAgentEnv):
                     y - center_y
                 ) / self.max_distance_y  # relative Y
 
-                ind = 3
                 if self.shield_bits_enemy > 0:
                     max_shield = self.unit_max_shield(e_unit)
-                    enemy_state[e_id, ind] = (
-                        e_unit.shield / max_shield
-                    )  # shield
-                    ind += 1
+                    enemy_state[e_id, 3] = (
+                        e_unit.shield / max_shield)  # shield
 
                 if self.unit_type_bits > 0:
-                    type_id = self.get_unit_type_id(e_unit, False)
-                    enemy_state[e_id, ind + type_id] = 1
+                    type_id = self.get_unit_type_id(
+                        e_unit, False)
+                    enemy_state[e_id, type_id - self.unit_type_bits] = 1
 
-        state = np.append(ally_state.flatten(), enemy_state.flatten())
+        state = {'allies': ally_state, 'enemies': enemy_state}
+
         if self.state_last_action:
-            state = np.append(state, self.last_action.flatten())
+            state['last_action'] = self.last_action
         if self.state_timestep_number:
-            state = np.append(state,
-                              self._episode_steps / self.episode_limit)
-
-        state = state.astype(dtype=np.float32)
-
-        if self.debug:
-            logging.debug("STATE".center(60, "-"))
-            logging.debug("Ally state {}".format(ally_state))
-            logging.debug("Enemy state {}".format(enemy_state))
-            if self.state_last_action:
-                logging.debug("Last actions {}".format(self.last_action))
+            state['timestep'] = self._episode_steps / self.episode_limit
 
         return state
 
@@ -1391,6 +1454,13 @@ class StarCraft2Env(MultiAgentEnv):
             all_agents_created = (len(self.agents) == self.n_agents)
             all_enemies_created = (len(self.enemies) == self.n_enemies)
 
+            self._unit_types = [unit.unit_type
+                               for unit in ally_units_sorted] + [
+                                   unit.unit_type
+                                   for unit in self._obs.observation.raw_data.
+                                   units if unit.owner == 2
+                               ]
+
             if all_agents_created and all_enemies_created:  # all good
                 return
 
@@ -1400,6 +1470,12 @@ class StarCraft2Env(MultiAgentEnv):
             except (protocol.ProtocolError, protocol.ConnectionError):
                 self.full_restart()
                 self.reset()
+
+    def get_unit_types(self):
+        if self._unit_types is None:
+            warn('unit types have not been initialized yet, please call env.reset() to populate this and call the method again.')
+        
+        return self._unit_types
 
     def update_units(self):
         """Update units after an environment step.
@@ -1515,3 +1591,9 @@ class StarCraft2Env(MultiAgentEnv):
             "restarts": self.force_restarts,
         }
         return stats
+
+    def get_env_info(self):
+        env_info = super().get_env_info()
+        env_info["agent_features"] = self.ally_state_attr_names
+        env_info["enemy_features"] = self.enemy_state_attr_names
+        return env_info
