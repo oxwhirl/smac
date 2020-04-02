@@ -94,3 +94,7 @@ class RLlibStarCraft2Env(rllib.MultiAgentEnv):
 
         self._ready_agents = list(range(len(obs_list)))
         return return_obs, rews, dones, infos
+
+    def close(self):
+        """Close the environment"""
+        self._env.close()
