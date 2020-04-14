@@ -98,3 +98,7 @@ class RLlibStarCraft2Env(rllib.MultiAgentEnv):
     def close(self):
         """Close the environment"""
         self._env.close()
+
+    def seed(self, seed):
+        random.seed(seed)
+        np.random.seed(seed)
