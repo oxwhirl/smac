@@ -48,7 +48,7 @@ class RLlibStarCraft2Env(rllib.MultiAgentEnv):
         return_obs = {}
         for i, obs in enumerate(obs_list):
             return_obs[i] = {
-                "action_mask": self._env.get_avail_agent_actions(i),
+                "action_mask": np.array(self._env.get_avail_agent_actions(i)),
                 "obs": obs,
             }
 
