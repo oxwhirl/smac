@@ -2,6 +2,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import random
+
+import numpy as np
+
 from gym.spaces import Discrete, Box, Dict
 
 from ray import rllib
@@ -44,7 +48,7 @@ class RLlibStarCraft2Env(rllib.MultiAgentEnv):
         return_obs = {}
         for i, obs in enumerate(obs_list):
             return_obs[i] = {
-                "action_mask": self._env.get_avail_agent_actions(i),
+                "action_mask": np.array(self._env.get_avail_agent_actions(i)),
                 "obs": obs,
             }
 
@@ -94,3 +98,11 @@ class RLlibStarCraft2Env(rllib.MultiAgentEnv):
 
         self._ready_agents = list(range(len(obs_list)))
         return return_obs, rews, dones, infos
+
+    def close(self):
+        """Close the environment"""
+        self._env.close()
+
+    def seed(self, seed):
+        random.seed(seed)
+        np.random.seed(seed)
