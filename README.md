@@ -63,6 +63,16 @@ To see the list of SMAC maps, together with the number of ally and enemy units a
 $ python -m smac.bin.map_list 
 ```
 
+### Creating new maps/scenarios
+
+Users can extend SMAC by adding new maps/scenarios. To this end, one needs to:
+
+- Design a new map/scenario using StarCraft II Editor:
+  - Please take a close look at the existing maps to understand the basics that we use (e.g. Triggers, Units, etc),
+  - We make use of special RL units which never automatically start attacking the enemy. [Here](https://docs.google.com/document/d/1BfAM_AtZWBRhUiOBcMkb_uK4DAZW3CpvO79-vnEOKxA/edit?usp=sharing) is the step-by-step guide on how to create new RL units based on existing SC2 units,
+- Add the map information in [smac_maps.py](https://github.com/oxwhirl/smac/blob/master/smac/env/starcraft2/maps/smac_maps.py),
+- The newly designed RL units have new ids which need to be handled in [starcraft2.py](https://github.com/oxwhirl/smac/blob/master/smac/env/starcraft2/starcraft2.py). Specifically, for heterogenious maps containing more than one unit types, one needs to manually set the unit ids in the `_init_ally_unit_types()` function.
+
 ## Testing SMAC
 
 Please run the following command to make sure that `smac` and its maps are properly installed. 
