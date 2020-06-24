@@ -59,7 +59,7 @@ To see the list of SMAC maps, together with the number of ally and enemy units a
 $ python -m smac.bin.map_list 
 ```
 
-### Creating new maps/scenarios
+### Creating new maps
 
 Users can extend SMAC by adding new maps/scenarios. To this end, one needs to:
 
