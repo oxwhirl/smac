@@ -109,7 +109,7 @@ All features, both in the state as well as in the observations of individual age
 
 ### Action Space
 
-The discrete set of actions which agents are allowed to take consists of _move[direction]_ (four directions: north, south, east, or west._, _attack[enemy_id]_, _stop_ and _no-op_. Dead agents can only take _no-op_ action while live agents cannot.
+The discrete set of actions which agents are allowed to take consists of _move[direction]_ (four directions: north, south, east, or west), _attack[enemy_id]_, _stop_ and _no-op_. Dead agents can only take _no-op_ action while live agents cannot.
 As healer units, Medivacs must use _heal[agent\_id]_ actions instead of _attack[enemy\_id]_. The maximum number of actions an agent can take ranges between 7 and 70, depending on the scenario.
 
 To ensure decentralisation of the task, agents are restricted to use the _attack[enemy\_id]_ action only towards enemies in their _shooting range_.
