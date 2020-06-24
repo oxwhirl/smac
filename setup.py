@@ -20,7 +20,7 @@ Read the README at https://github.com/oxwhirl/smac for more information.
 
 setup(
     name='SMAC',
-    version='0.1.0b1',
+    version='1.0.0',
     description='SMAC - StarCraft Multi-Agent Challenge.',
     long_description=description,
     author='WhiRL',
