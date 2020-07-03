@@ -93,6 +93,7 @@ The complete list of challenges is presented bellow. The difficulty of the game 
 | bane_vs_bane | 20 Zerglings & 4 Banelings  | 20 Zerglings & 4 Banelings | micro-trick: positioning |
 | so_many_banelings| 7 Zealots  | 32 Banelings | micro-trick: positioning |
 | 2c_vs_64zg| 2 Colossi  | 64 Zerglings | micro-trick: positioning |
+| 1c3s5z | 1 Colossi & 3 Stalkers & 5 Zealots | 1 Colossi & 3 Stalkers & 5 Zealots | heterogeneous & symmetric |
 
 ### State and Observations
 
