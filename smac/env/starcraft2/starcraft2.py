@@ -433,6 +433,18 @@ class StarCraft2Env(MultiAgentEnv):
         reward = self.reward_battle()
         info = {"battle_won": False}
 
+        # count units that are still alive
+        dead_allies, dead_enemies = 0, 0
+        for al_id, al_unit in self.agents.items():
+            if al_unit.health == 0:
+                dead_allies += 1
+        for e_id, e_unit in self.enemies.items():
+            if e_unit.health == 0:
+                dead_enemies += 1
+
+        info['dead_allies'] = dead_allies
+        info['dead_enemies'] = dead_enemies
+
         if game_end_code is not None:
             # Battle is over
             terminated = True
