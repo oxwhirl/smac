@@ -1136,7 +1136,7 @@ class StarCraft2Env(MultiAgentEnv):
 
                 if self.shield_bits_ally > 0:
                     max_shield = self.unit_max_shield(al_unit)
-                    ally_state[al_id, 3] = (
+                    ally_state[al_id, 4] = (
                         al_unit.shield / max_shield)  # shield
 
                 if self.unit_type_bits > 0:
