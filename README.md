@@ -17,8 +17,7 @@ Together with SMAC we also release [PyMARL](https://github.com/oxwhirl/pymarl) -
 
 Should you have any question, please reach to [mikayel@samvelyan.com](mailto:mikayel@samvelyan.com) or [tabish.rashid@cs.ox.ac.uk](mailto:tabish.rashid@cs.ox.ac.uk).
 
-Data from the runs used in the paper is included [here](https://github.com/oxwhirl/smac/releases/download/v1/smac_run_data.json).
-
+Data from the runs used in the paper is included [here](https://github.com/oxwhirl/smac/releases/download/v1/smac_run_data.json). **These runs are <ins>outdated</ins> based on recent changes in StarCraft II. If you ran your experiments using the current version of SMAC, you mustn't compare your results with the ones provided here.**
 
 # Quick Start
 
