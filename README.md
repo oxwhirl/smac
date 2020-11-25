@@ -82,15 +82,29 @@ Please run the following command to make sure that `smac` and its maps are prope
 $ python -m smac.examples.random_agents
 ```
 
-## Watch a replay
+## Saving and Watching StarCraft II Replays
 
-You can watch saved replays by running:
+### Saving a replay
+
+If you’ve using our [PyMARL](https://github.com/oxwhirl/pymarl) framework for multi-agent RL, here’s what needs to be done:
+1. **Saving models**: We run experiments on *Linux* servers with `save_model = True` (also `save_model_interval` is relevant) setting so that we have training checkpoints (parameters of neural networks) saved (click [here](https://github.com/oxwhirl/pymarl#saving-and-loading-learnt-models) for more details).
+2. **Loading models**: Learnt models can be loaded using the `checkpoint_path` parameter. If you run PyMARL on *MacOS* (or *Windows*) while also setting `save_replay=True`, this will save a .SC2Replay file for `test_nepisode` episodes on the test mode (no exploration) in the Replay directory of StarCraft II. (click [here](https://github.com/oxwhirl/pymarl#watching-starcraft-ii-replays) for more details).
+
+If you want to save replays without using PyMARL, simply call the `save_replay()` function of SMAC's StarCraft2Env in your training/testing code. This will save a replay of all epsidoes since the launch of the StarCraft II client.
+
+The easiest way to save and later watch a replay on Linux is to use [Wine](https://www.winehq.org/).
+
+### Watching a replay
+
+You can watch the saved replay directly within the StarCraft II client on MacOS/Windows by *clicking on the corresponding Replay file*.
+
+You can also watch saved replays by running:
 
 ```shell
 $ python -m pysc2.bin.play --norender --rgb_minimap_size 0 --replay <path-to-replay>
 ```
 
-This works for any replay as long as the map can be found by the game.
+This works for any replay as long as the map can be found by the game. 
 
 For more information, please refer to [PySC2](https://github.com/deepmind/pysc2) documentation.
 
