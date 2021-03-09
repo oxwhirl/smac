@@ -324,11 +324,9 @@ class StarCraft2Env(MultiAgentEnv):
         create.player_setup.add(type=sc_pb.Computer, race=races[self._bot_race],
                                 difficulty=difficulties[self.difficulty])
         self._controller.create_game(create)
-
         join = sc_pb.RequestJoinGame(race=races[self._agent_race],
                                      options=interface_options)
         self._controller.join_game(join)
-
         game_info = self._controller.game_info()
         map_info = game_info.start_raw
         map_play_area_min = map_info.playable_area.p0
