@@ -14,7 +14,7 @@ def make_env(raw_env):
         env = wrappers.AssertOutOfBoundsWrapper(env)
         env = wrappers.OrderEnforcingWrapper(env)
         return env
-    return env_fnd
+    return env_fn
 
 
 class smac_parallel_env(ParallelEnv):
