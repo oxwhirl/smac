@@ -14,7 +14,7 @@ def make_env(raw_env):
         env = wrappers.AssertOutOfBoundsWrapper(env)
         env = wrappers.OrderEnforcingWrapper(env)
         return env
-    return env_fn
+    return env_fnd
 
 
 class smac_parallel_env(ParallelEnv):
@@ -61,8 +61,10 @@ class smac_parallel_env(ParallelEnv):
                 agent_type = 'stalker'
             elif agent_info.unit_type == self.env.colossus_id:
                 agent_type = 'colossus'
-            else:
+            elif agent_info.unit_type == self.env.zealot_id:
                 agent_type = 'zealot'
+            else:
+                raise AssertionError(f"agent type {agent_type} not supported")
 
             if agent_type == last_type:
                 i += 1
@@ -161,3 +163,6 @@ class smac_parallel_env(ParallelEnv):
         self.all_dones = all_dones
 
         return all_observes, all_rewards, all_dones, all_infos
+
+    def __del__(self):
+        self.env.close()

@@ -67,24 +67,24 @@ class Renderer:
         window_size_px = point.Point(self.env.window_size[0], self.env.window_size[1])
         self._scale = window_size_px.y // 32
 
-        self.display = pygame.display.set_mode(window_size_px, 0, 32)
+        self.display = pygame.Surface(window_size_px)
 
         if mode == "human":
-            pygame.init()
+            self.display = pygame.display.set_mode(window_size_px, 0, 32)
             pygame.display.init()
 
-            self._world_to_world_tl = transform.Linear(point.Point(1, -1), point.Point(0, self._map_size.y))
-            self._world_tl_to_screen = transform.Linear(scale=window_size_px / 32)
-            self.screen_transform = transform.Chain(self._world_to_world_tl, self._world_tl_to_screen)
-
-            surf_loc = point.Rect(point.origin, window_size_px)
-            sub_surf = self.display.subsurface(pygame.Rect(surf_loc.tl, surf_loc.size))
-            self._surf = _Surface(sub_surf, None, surf_loc, self.screen_transform, None, self.draw_screen)
-
-            self._font_small = pygame.font.Font(None, int(self._scale * 0.5))
-            self._font_large = pygame.font.Font(None, self._scale)
-
             pygame.display.set_caption("Starcraft Viewer")
+        pygame.font.init()
+        self._world_to_world_tl = transform.Linear(point.Point(1, -1), point.Point(0, self._map_size.y))
+        self._world_tl_to_screen = transform.Linear(scale=window_size_px / 32)
+        self.screen_transform = transform.Chain(self._world_to_world_tl, self._world_tl_to_screen)
+
+        surf_loc = point.Rect(point.origin, window_size_px)
+        sub_surf = self.display.subsurface(pygame.Rect(surf_loc.tl, surf_loc.size))
+        self._surf = _Surface(sub_surf, None, surf_loc, self.screen_transform, None, self.draw_screen)
+
+        self._font_small = pygame.font.Font(None, int(self._scale * 0.5))
+        self._font_large = pygame.font.Font(None, self._scale)
 
     def close(self):
         pygame.display.quit()
@@ -115,15 +115,20 @@ class Renderer:
         now = time.time()
         self._game_times.append((now - self._last_time, max(1, self.obs.observation.game_loop - self.obs.observation.game_loop)))
 
-        pygame.event.pump()
+        if mode == "human":
+            pygame.event.pump()
 
         self._surf.draw(self._surf)
 
-        pygame.display.flip()
+        observation = np.array(pygame.surfarray.pixels3d(self.display))
+
+        if mode == "human":
+            pygame.display.flip()
 
         self._last_time = now
         self._last_game_loop = self.obs.observation.game_loop
-        self._obs_queue.put(self.obs)
+        # self._obs_queue.put(self.obs)
+        return np.transpose(observation, axes=(1, 0, 2)) if mode == "rgb_array" else None
 
     def draw_base_map(self, surf):
         """Draw the base map."""

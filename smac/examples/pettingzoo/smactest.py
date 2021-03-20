@@ -13,14 +13,15 @@ def random_demo(env, render=True, cycles=100):
     total_reward = 0
     done = False
 
+    env.reset()
     for cycle in range(cycles):
-        env.reset()
-        for agent in env.agent_iter():
 
-            if render:
-                env.render()
+        if render:
+            env.render()
+        for agent in env.agent_iter(len(env.agents)):
 
             obs, reward, done, info = env.last()
+
             total_reward += reward
             if done:
                 action = None
@@ -29,6 +30,7 @@ def random_demo(env, render=True, cycles=100):
             else:
                 action = env.action_spaces[agent].sample()
             env.step(action)
+
 
     print("Total reward", total_reward, "done", done)
 

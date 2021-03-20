@@ -20,7 +20,7 @@ env = make_env(raw_env)
 
 
 class _parallel_env(smac_parallel_env, EzPickle):
-    metadata = {'render.modes': ['human'], 'name': "sc2_v0"}
+    metadata = {'render.modes': ['human', 'rgb_array'], 'name': "sc2_v0"}
 
     def __init__(self, max_cycles, **smac_args):
         EzPickle.__init__(self, max_cycles, **smac_args)
