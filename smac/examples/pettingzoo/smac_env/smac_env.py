@@ -32,7 +32,6 @@ class smac_parallel_env(ParallelEnv):
                                'action_mask': spaces.Box(low=0, high=1, shape=(self.action_spaces[name].n,), dtype=np.int8)})
             for name in self.agents
         }
-
         self._renderer = None
         self._reward = 0
 
@@ -50,7 +49,6 @@ class smac_parallel_env(ParallelEnv):
                 agent_type = 'marauder'
             elif agent_info.unit_type == self.env.medivac_id:
                 agent_type = 'medivac'
-                unit_action_space = spaces.Discrete((self.env.n_agents - 1) + (self.env.n_actions_no_attack - 1))  # action heal each ally unit and no-op in dead units is not an action
             elif agent_info.unit_type == self.env.hydralisk_id:
                 agent_type = 'hydralisk'
             elif agent_info.unit_type == self.env.zergling_id:

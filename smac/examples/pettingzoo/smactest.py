@@ -1,52 +1,13 @@
 import time
 import random
 import numpy as np
+from pettingzoo.utils import random_demo
 
 from smac_env import sc2_v0
-
-
-def random_demo(env, render=True, cycles=100):
-    '''
-    Runs an env object with random actions.
-    '''
-
-    total_reward = 0
-    done = False
-
-    env.reset()
-    for cycle in range(cycles):
-
-        if render:
-            env.render()
-        for agent in env.agent_iter(len(env.agents)):
-
-            obs, reward, done, info = env.last()
-
-            total_reward += reward
-            if done:
-                action = None
-            elif isinstance(obs, dict) and 'action_mask' in obs:
-                action = random.choice(np.flatnonzero(obs['action_mask']))
-            else:
-                action = env.action_spaces[agent].sample()
-            env.step(action)
-
-
-    print("Total reward", total_reward, "done", done)
-
-    if render:
-        env.render()
-        time.sleep(2)
-
-    env.close()
-
-    return total_reward
-
 
 def main():
     env = sc2_v0.env(map_name="corridor", step_mul=2, window_size_x=800, window_size_y=800)
     random_demo(env)
-
 
 if __name__ == "__main__":
     main()
