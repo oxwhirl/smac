@@ -17,8 +17,8 @@ def test_env(map_name):
     env = sc2_v0.env(map_name=map_name)
     test.api_test(env)
     # test.parallel_api_test(sc2_v0.parallel_env()) # does not pass it due to illegal actions
-    # test.seed_test(sc2_v0.env, 50) # not required, sc2 env only allows reseeding at initialization
-    test.render_test(env)
+    test.seed_test(sc2_v0.env, 50, test_kept_state=False) # not required, sc2 env only allows reseeding at initialization
+    # test.render_test(env)
 
     recreated_env = pickle.loads(pickle.dumps(env))
     test.api_test(recreated_env)

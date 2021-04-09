@@ -7,7 +7,7 @@ from smac_env import sc2_v0
 
 def main():
     env = sc2_v0.env(map_name="corridor", step_mul=2, window_size_x=800, window_size_y=800)
-    random_demo(env)
+    random_demo(env,episodes=3)
 
 if __name__ == "__main__":
     main()

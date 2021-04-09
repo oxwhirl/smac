@@ -95,13 +95,8 @@ class smac_parallel_env(ParallelEnv):
             self._renderer = None
 
     def reset(self):
-        if self.reset_flag < 2:
-            self.env._episode_count = 1
-            self.env.reset()
-            self.env._episode_count = 0
-            self.reset_flag += 1
-        else:
-            self.env.reset()
+        self.env._episode_count = 1
+        self.env.reset()
 
         self.agents = self.possible_agents[:]
         self.frames = 0
