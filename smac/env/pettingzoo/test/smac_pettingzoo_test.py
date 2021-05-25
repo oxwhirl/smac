@@ -1,5 +1,10 @@
+import os,sys,inspect
+current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
+
 from pettingzoo import test
-from smac.env.pettingzoo.smac_env import sc2
+import sc2
 import pickle
 
 if __name__ == "__main__":

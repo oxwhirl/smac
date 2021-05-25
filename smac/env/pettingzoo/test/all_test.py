@@ -1,6 +1,6 @@
 from smac.env.starcraft2.maps import smac_maps
 from pysc2 import maps as pysc2_maps
-from smac.env.pettingzoo.smac_env import sc2
+from smac.env.pettingzoo import sc2
 import pytest
 from pettingzoo import test
 import pickle
@@ -17,7 +17,7 @@ def test_env(map_name):
     env = sc2.env(map_name=map_name)
     test.api_test(env)
     # test.parallel_api_test(sc2_v0.parallel_env()) # does not pass it due to illegal actions
-    # test.seed_test(sc2_v0.env, 50) # not required, sc2 env only allows reseeding at initialization
+    # test.seed_test(sc2.env, 50) # not required, sc2 env only allows reseeding at initialization
     test.render_test(env)
 
     recreated_env = pickle.loads(pickle.dumps(env))
