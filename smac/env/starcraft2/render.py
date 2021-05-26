@@ -61,8 +61,8 @@ class Renderer:
         point.Point.build(game_info.start_raw.playable_area.p0),
         point.Point.build(game_info.start_raw.playable_area.p1))
 
-        # window_size_px = self._map_size.scale_max_size(_get_desktop_size() * self._window_scale).ceil()
         window_size_px = point.Point(self.env.window_size[0], self.env.window_size[1])
+        window_size_px = self._map_size.scale_max_size(window_size_px * self._window_scale).ceil()
         self._scale = window_size_px.y // 32
 
         self.display = pygame.Surface(window_size_px)

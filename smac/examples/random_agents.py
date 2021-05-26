@@ -17,6 +17,7 @@ def main():
 
     for e in range(n_episodes):
         env.reset()
+        env.render()
         terminated = False
         episode_reward = 0
 

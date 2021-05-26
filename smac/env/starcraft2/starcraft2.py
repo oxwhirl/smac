@@ -81,7 +81,6 @@ class StarCraft2Env(MultiAgentEnv):
         obs_timestep_number=False,
         state_last_action=True,
         state_timestep_number=False,
-        render=False,
         reward_sparse=False,
         reward_only_positive=True,
         reward_death_value=10,
