@@ -284,8 +284,6 @@ class StarCraft2Env(MultiAgentEnv):
             self.enemy_state_attr_names += bit_attr_names
 
         act_attr_names = ['action_{}'.format(act) for act in range(self.n_actions)]
-        if self.state_last_action or self.obs_instead_of_state:
-            self.ally_state_attr_names += act_attr_names
         if self.obs_last_action:
             self.ally_obs_attr_names += act_attr_names
 
