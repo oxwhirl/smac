@@ -4,7 +4,7 @@ from __future__ import print_function
 
 from smac.env.multiagentenv import MultiAgentEnv
 from smac.env.starcraft2.maps import get_map_params
-from smac.env.starcraft2.render import Renderer
+from smac.env.starcraft2.render import StarCraft2Renderer
 
 import atexit
 from warnings import warn
@@ -327,9 +327,11 @@ class StarCraft2Env(MultiAgentEnv):
         create.player_setup.add(type=sc_pb.Computer, race=races[self._bot_race],
                                 difficulty=difficulties[self.difficulty])
         self._controller.create_game(create)
+
         join = sc_pb.RequestJoinGame(race=races[self._agent_race],
                                      options=interface_options)
         self._controller.join_game(join)
+
         game_info = self._controller.game_info()
         map_info = game_info.start_raw
         map_play_area_min = map_info.playable_area.p0
@@ -1250,12 +1252,12 @@ class StarCraft2Env(MultiAgentEnv):
         return size
 
     def get_visibility_matrix(self):
-        """Returns a boolean numpy array of dimensions
+        """Returns a boolean numpy array of dimensions 
         (n_agents, n_agents + n_enemies) indicating which units
         are visible to each agent.
         """
         arr = np.zeros(
-            (self.n_agents, self.n_agents + self.n_enemies),
+            (self.n_agents, self.n_agents + self.n_enemies), 
             dtype=np.bool,
         )
 
@@ -1278,7 +1280,7 @@ class StarCraft2Env(MultiAgentEnv):
 
                 # The matrix for allies is filled symmetrically
                 al_ids = [
-                    al_id for al_id in range(self.n_agents)
+                    al_id for al_id in range(self.n_agents) 
                     if al_id > agent_id
                 ]
                 for i, al_id in enumerate(al_ids):
@@ -1287,7 +1289,7 @@ class StarCraft2Env(MultiAgentEnv):
                     al_y = al_unit.pos.y
                     dist = self.distance(x, y, al_x, al_y)
 
-                    if (dist < sight_range and al_unit.health > 0):
+                    if (dist < sight_range and al_unit.health > 0): 
                         # visible and alive
                         arr[agent_id, al_id] = arr[al_id, agent_id] = 1
 
