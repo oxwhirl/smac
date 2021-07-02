@@ -1100,8 +1100,8 @@ class StarCraft2Env(MultiAgentEnv):
         """
 
         # number of features equals the number of attribute names
-        nf_al = len(self.ally_state_attr_names)
-        nf_en = len(self.enemy_state_attr_names)
+        nf_al = self.get_ally_num_attributes()
+        nf_en = self.get_enemy_num_attributes()
 
         ally_state = np.zeros((self.n_agents, nf_al))
         enemy_state = np.zeros((self.n_enemies, nf_en))
