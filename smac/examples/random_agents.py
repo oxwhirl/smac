@@ -7,7 +7,7 @@ import numpy as np
 
 
 def main():
-    env = StarCraft2Env(map_name="27m_vs_30m")
+    env = StarCraft2Env(map_name="8m")
     env_info = env.get_env_info()
 
     n_actions = env_info["n_actions"]
@@ -17,7 +17,6 @@ def main():
 
     for e in range(n_episodes):
         env.reset()
-        env.render()
         terminated = False
         episode_reward = 0
 

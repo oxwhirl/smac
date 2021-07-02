@@ -38,7 +38,7 @@ def _get_desktop_size():
     return point.Point(display_info.current_w, display_info.current_h)
 
 
-class Renderer:
+class StarCraft2Renderer:
     def __init__(self, env, mode):
         os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = 'hide'
 

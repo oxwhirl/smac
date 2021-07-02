@@ -4,7 +4,7 @@ from __future__ import print_function
 
 import random
 import numpy as np
-from smac.env.pettingzoo import sc2
+from smac.env.pettingzoo import StarCraft2PZEnv
 
 def main(env, render=True, episodes=10):
     '''
@@ -40,6 +40,6 @@ def main(env, render=True, episodes=10):
 
 
 if __name__ == "__main__":
-    env = sc2.env()
+    env = StarCraft2PZEnv.env()
     episodes = 10
     main(env, episodes)
