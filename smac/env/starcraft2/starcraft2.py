@@ -1394,7 +1394,7 @@ class StarCraft2Env(MultiAgentEnv):
 
     def render(self, mode="human"):
         if self.renderer is None:
-            self.renderer = Renderer(self, mode)
+            self.renderer = StarCraft2Renderer(self, mode)
         assert mode == self.renderer.mode, "mode must be consistent across render calls"
         return self.renderer.render(mode)
 
