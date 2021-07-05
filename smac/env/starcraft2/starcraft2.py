@@ -256,36 +256,19 @@ class StarCraft2Env(MultiAgentEnv):
             self.n_enemies * self.reward_death_value + self.reward_win
         )
 
-        # create lists containing the names of attributes returned in states and observations
+        # create lists containing the names of attributes returned in states
         self.ally_state_attr_names = ['health', 'energy/cooldown', 'rel_x', 'rel_y']
         self.enemy_state_attr_names = ['health', 'rel_x', 'rel_y']
-
-        self.ally_obs_attr_names = ['energy/cooldown', 'rel_x', 'rel_y']
-        self.enemy_obs_attr_names = ['rel_x', 'rel_y']
 
         if self.shield_bits_ally > 0:
             self.ally_state_attr_names += ['shield']
         if self.shield_bits_enemy > 0:
             self.enemy_state_attr_names += ['shield']
 
-        if self.obs_own_health:
-            self.ally_obs_attr_names.insert(0, 'health')
-            if self.shield_bits_enemy > 0:
-                self.ally_obs_attr_names += ['shield']
-
-        if self.obs_all_health:
-            self.enemy_obs_attr_names.insert(0, 'health')
-            if self.shield_bits_enemy > 0:
-                self.enemy_obs_attr_names += ['shield']
-
         if self.unit_type_bits > 0:
             bit_attr_names = ['type_{}'.format(bit) for bit in range(self.unit_type_bits)]
             self.ally_state_attr_names += bit_attr_names
             self.enemy_state_attr_names += bit_attr_names
-
-        act_attr_names = ['action_{}'.format(act) for act in range(self.n_actions)]
-        if self.obs_last_action:
-            self.ally_obs_attr_names += act_attr_names
 
         self.agents = {}
         self.enemies = {}
@@ -1105,7 +1088,7 @@ class StarCraft2Env(MultiAgentEnv):
         - enemy_types: list containing enemy types as integers
         - last_action: numpy array of previous actions for each agent
         - timestep: current no. of steps divided by total no. of steps
-        
+
         NOTE: This function should not be used during decentralised execution.
         """
 
@@ -1268,12 +1251,12 @@ class StarCraft2Env(MultiAgentEnv):
         return size
 
     def get_visibility_matrix(self):
-        """Returns a boolean numpy array of dimensions 
+        """Returns a boolean numpy array of dimensions
         (n_agents, n_agents + n_enemies) indicating which units
         are visible to each agent.
         """
         arr = np.zeros(
-            (self.n_agents, self.n_agents + self.n_enemies), 
+            (self.n_agents, self.n_agents + self.n_enemies),
             dtype=np.bool,
         )
 
@@ -1296,7 +1279,7 @@ class StarCraft2Env(MultiAgentEnv):
 
                 # The matrix for allies is filled symmetrically
                 al_ids = [
-                    al_id for al_id in range(self.n_agents) 
+                    al_id for al_id in range(self.n_agents)
                     if al_id > agent_id
                 ]
                 for i, al_id in enumerate(al_ids):
@@ -1305,7 +1288,7 @@ class StarCraft2Env(MultiAgentEnv):
                     al_y = al_unit.pos.y
                     dist = self.distance(x, y, al_x, al_y)
 
-                    if (dist < sight_range and al_unit.health > 0):  
+                    if (dist < sight_range and al_unit.health > 0):
                         # visible and alive
                         arr[agent_id, al_id] = arr[al_id, agent_id] = 1
 
@@ -1484,7 +1467,7 @@ class StarCraft2Env(MultiAgentEnv):
     def get_unit_types(self):
         if self._unit_types is None:
             warn('unit types have not been initialized yet, please call env.reset() to populate this and call the method again.')
-        
+
         return self._unit_types
 
     def update_units(self):
