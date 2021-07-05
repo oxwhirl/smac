@@ -1082,10 +1082,6 @@ class StarCraft2Env(MultiAgentEnv):
 
         - allies: numpy array containing agents and their attributes
         - enemies: numpy array containing enemies and their attributes
-        - ally_attributes: list containing attribute names for the agent array
-        - enemy_attributes: list containing attribute names for the emey array
-        - ally_types: list containing agent types as integers
-        - enemy_types: list containing enemy types as integers
         - last_action: numpy array of previous actions for each agent
         - timestep: current no. of steps divided by total no. of steps
 
