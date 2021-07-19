@@ -31,10 +31,14 @@ class RLlibStarCraft2Env(rllib.MultiAgentEnv):
 
         self._env = StarCraft2Env(**smac_args)
         self._ready_agents = []
-        self.observation_space = Dict({
-            "obs": Box(-1, 1, shape=(self._env.get_obs_size(),)),
-            "action_mask": Box(0, 1, shape=(self._env.get_total_actions(),)),
-        })
+        self.observation_space = Dict(
+            {
+                "obs": Box(-1, 1, shape=(self._env.get_obs_size(),)),
+                "action_mask": Box(
+                    0, 1, shape=(self._env.get_total_actions(),)
+                ),
+            }
+        )
         self.action_space = Discrete(self._env.get_total_actions())
 
     def reset(self):
@@ -75,13 +79,16 @@ class RLlibStarCraft2Env(rllib.MultiAgentEnv):
         for i in self._ready_agents:
             if i not in action_dict:
                 raise ValueError(
-                    "You must supply an action for agent: {}".format(i))
+                    "You must supply an action for agent: {}".format(i)
+                )
             actions.append(action_dict[i])
 
         if len(actions) != len(self._ready_agents):
             raise ValueError(
                 "Unexpected number of actions: {}".format(
-                    action_dict, self._ready_agents))
+                    action_dict,
+                )
+            )
 
         rew, done, info = self._env.step(actions)
         obs_list = self._env.get_obs()

@@ -34,23 +34,26 @@ if __name__ == "__main__":
         obs_space = Tuple([env.observation_space for i in agent_list])
         act_space = Tuple([env.action_space for i in agent_list])
         return env.with_agent_groups(
-            grouping, obs_space=obs_space, act_space=act_space)
+            grouping, obs_space=obs_space, act_space=act_space
+        )
 
     ray.init()
     register_env("sc2_grouped", env_creator)
 
-    run_experiments({
-        "qmix_sc2": {
-            "run": "QMIX",
-            "env": "sc2_grouped",
-            "stop": {
-                "training_iteration": args.num_iters,
-            },
-            "config": {
-                "num_workers": args.num_workers,
-                "env_config": {
-                    "map_name": args.map_name,
+    run_experiments(
+        {
+            "qmix_sc2": {
+                "run": "QMIX",
+                "env": "sc2_grouped",
+                "stop": {
+                    "training_iteration": args.num_iters,
+                },
+                "config": {
+                    "num_workers": args.num_workers,
+                    "env_config": {
+                        "map_name": args.map_name,
+                    },
                 },
             },
-        },
-    })
+        }
+    )

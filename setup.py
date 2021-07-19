@@ -55,5 +55,6 @@ setup(
         "s2clientprotocol>=4.10.1.75800.0",
         "absl-py>=0.1.0",
         "numpy>=1.10",
+        "pygame>=2.0.0",
     ],
 )
