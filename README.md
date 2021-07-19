@@ -70,7 +70,7 @@ Download the [SMAC Maps](https://github.com/oxwhirl/smac/releases/download/v0.1-
 To see the list of SMAC maps, together with the number of ally and enemy units and episode limit, run:
 
 ```shell
-$ python -m smac.bin.map_list 
+python -m smac.bin.map_list 
 ```
 
 ### Creating new maps
@@ -88,7 +88,7 @@ Users can extend SMAC by adding new maps/scenarios. To this end, one needs to:
 Please run the following command to make sure that `smac` and its maps are properly installed. 
 
 ```bash
-$ python -m smac.examples.random_agents
+python -m smac.examples.random_agents
 ```
 
 ## Saving and Watching StarCraft II Replays
@@ -110,7 +110,7 @@ You can watch the saved replay directly within the StarCraft II client on MacOS/
 You can also watch saved replays by running:
 
 ```shell
-$ python -m pysc2.bin.play --norender --rgb_minimap_size 0 --replay <path-to-replay>
+python -m pysc2.bin.play --norender --rgb_minimap_size 0 --replay <path-to-replay>
 ```
 
 This works for any replay as long as the map can be found by the game. 
