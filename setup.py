@@ -18,31 +18,42 @@ algorithms can be found at https://www.arxiv.link
 Read the README at https://github.com/oxwhirl/smac for more information.
 """
 
-setup(
-    name='SMAC',
-    version='1.0.0',
-    description='SMAC - StarCraft Multi-Agent Challenge.',
-    long_description=description,
-    author='WhiRL',
-    author_email='mikayel@samvelyan.com',
-    license='MIT License',
-    keywords='StarCraft, Multi-Agent Reinforcement Learning',
-    url='https://github.com/oxwhirl/smac',
-    packages=[
-        'smac',
-        'smac.env',
-        'smac.env.starcraft2',
-        'smac.env.starcraft2.maps',
-        'smac.env.pettingzoo',
-        'smac.bin',
-        'smac.examples',
-        'smac.examples.rllib',
-        'smac.examples.pettingzoo',
+extras_deps = {
+    "dev": [
+        "pre-commit>=2.0.1",
+        "black>=19.10b0",
+        "flake8>=3.7",
+        "flake8-bugbear>=20.1",
     ],
+}
+
+
+setup(
+    name="SMAC",
+    version="1.0.0",
+    description="SMAC - StarCraft Multi-Agent Challenge.",
+    long_description=description,
+    author="WhiRL",
+    author_email="mikayel@samvelyan.com",
+    license="MIT License",
+    keywords="StarCraft, Multi-Agent Reinforcement Learning",
+    url="https://github.com/oxwhirl/smac",
+    packages=[
+        "smac",
+        "smac.env",
+        "smac.env.starcraft2",
+        "smac.env.starcraft2.maps",
+        "smac.env.pettingzoo",
+        "smac.bin",
+        "smac.examples",
+        "smac.examples.rllib",
+        "smac.examples.pettingzoo",
+    ],
+    extras_require=extras_deps,
     install_requires=[
-        'pysc2>=3.0.0',
-        's2clientprotocol>=4.10.1.75800.0',
-        'absl-py>=0.1.0',
-        'numpy>=1.10',
+        "pysc2>=3.0.0",
+        "s2clientprotocol>=4.10.1.75800.0",
+        "absl-py>=0.1.0",
+        "numpy>=1.10",
     ],
 )
