@@ -32,23 +32,25 @@ if __name__ == "__main__":
     register_env("smac", lambda smac_args: RLlibStarCraft2Env(**smac_args))
     ModelCatalog.register_custom_model("mask_model", MaskedActionsModel)
 
-    run_experiments({
-        "ppo_sc2": {
-            "run": "PPO",
-            "env": "smac",
-            "stop": {
-                "training_iteration": args.num_iters,
-            },
-            "config": {
-                "num_workers": args.num_workers,
-                "observation_filter": "NoFilter",  # breaks the action mask
-                "vf_share_layers": True,  # don't create a separate value model
-                "env_config": {
-                    "map_name": args.map_name,
+    run_experiments(
+        {
+            "ppo_sc2": {
+                "run": "PPO",
+                "env": "smac",
+                "stop": {
+                    "training_iteration": args.num_iters,
                 },
-                "model": {
-                    "custom_model": "mask_model",
+                "config": {
+                    "num_workers": args.num_workers,
+                    "observation_filter": "NoFilter",  # breaks the action mask
+                    "vf_share_layers": True,  # no separate value model
+                    "env_config": {
+                        "map_name": args.map_name,
+                    },
+                    "model": {
+                        "custom_model": "mask_model",
+                    },
                 },
             },
-        },
-     })
+        }
+    )

@@ -25,6 +25,7 @@ def make_env(raw_env):
         env = wrappers.AssertOutOfBoundsWrapper(env)
         env = wrappers.OrderEnforcingWrapper(env)
         return env
+
     return env_fn
 
 
@@ -39,38 +40,54 @@ class smac_parallel_env(ParallelEnv):
 
         observation_size = env.get_obs_size()
         self.observation_spaces = {
-            name: spaces.Dict({'observation': spaces.Box(low=-1, high=1, shape=(observation_size,), dtype="float32"),
-                               'action_mask': spaces.Box(low=0, high=1, shape=(self.action_spaces[name].n,), dtype=np.int8)})
+            name: spaces.Dict(
+                {
+                    "observation": spaces.Box(
+                        low=-1,
+                        high=1,
+                        shape=(observation_size,),
+                        dtype="float32",
+                    ),
+                    "action_mask": spaces.Box(
+                        low=0,
+                        high=1,
+                        shape=(self.action_spaces[name].n,),
+                        dtype=np.int8,
+                    ),
+                }
+            )
             for name in self.agents
         }
         self._reward = 0
 
     def _init_agents(self):
-        last_type = ''
+        last_type = ""
         agents = []
         action_spaces = {}
         self.agents_id = {}
         i = 0
         for agent_id, agent_info in self.env.agents.items():
-            unit_action_space = spaces.Discrete(self.env.get_total_actions() - 1)  # no-op in dead units is not an action
+            unit_action_space = spaces.Discrete(
+                self.env.get_total_actions() - 1
+            )  # no-op in dead units is not an action
             if agent_info.unit_type == self.env.marine_id:
-                agent_type = 'marine'
+                agent_type = "marine"
             elif agent_info.unit_type == self.env.marauder_id:
-                agent_type = 'marauder'
+                agent_type = "marauder"
             elif agent_info.unit_type == self.env.medivac_id:
-                agent_type = 'medivac'
+                agent_type = "medivac"
             elif agent_info.unit_type == self.env.hydralisk_id:
-                agent_type = 'hydralisk'
+                agent_type = "hydralisk"
             elif agent_info.unit_type == self.env.zergling_id:
-                agent_type = 'zergling'
+                agent_type = "zergling"
             elif agent_info.unit_type == self.env.baneling_id:
-                agent_type = 'baneling'
+                agent_type = "baneling"
             elif agent_info.unit_type == self.env.stalker_id:
-                agent_type = 'stalker'
+                agent_type = "stalker"
             elif agent_info.unit_type == self.env.colossus_id:
-                agent_type = 'colossus'
+                agent_type = "colossus"
             elif agent_info.unit_type == self.env.zealot_id:
-                agent_type = 'zealot'
+                agent_type = "zealot"
             else:
                 raise AssertionError(f"agent type {agent_type} not supported")
 
@@ -79,7 +96,7 @@ class smac_parallel_env(ParallelEnv):
             else:
                 i = 0
 
-            agents.append(f'{agent_type}_{i}')
+            agents.append(f"{agent_type}_{i}")
             self.agents_id[agents[-1]] = agent_id
             action_spaces[agents[-1]] = unit_action_space
             last_type = agent_type
@@ -113,7 +130,9 @@ class smac_parallel_env(ParallelEnv):
 
     def _all_rewards(self, reward):
         all_rewards = [reward] * len(self.agents)
-        return {agent: reward for agent, reward in zip(self.agents, all_rewards)}
+        return {
+            agent: reward for agent, reward in zip(self.agents, all_rewards)
+        }
 
     def _observe_all(self):
         all_obs = []
@@ -123,7 +142,9 @@ class smac_parallel_env(ParallelEnv):
             action_mask = self.env.get_avail_agent_actions(agent_id)
             action_mask = action_mask[1:]
             action_mask = (np.array(action_mask).astype(bool)).astype(int)
-            all_obs.append({'observation': np.array(obs), 'action_mask': action_mask})
+            all_obs.append(
+                {"observation": np.array(obs), "action_mask": action_mask}
+            )
         return {agent: obs for agent, obs in zip(self.agents, all_obs)}
 
     def _all_dones(self, step_done=False):
@@ -140,7 +161,9 @@ class smac_parallel_env(ParallelEnv):
 
     def step(self, all_actions):
         action_list = [0] * self.env.n_agents
-        self.agents = [agent for agent in self.agents if not self.all_dones[agent]]
+        self.agents = [
+            agent for agent in self.agents if not self.all_dones[agent]
+        ]
         for agent in self.possible_agents:
             agent_id = self.get_agent_smac_id(agent)
             if agent in all_actions:
@@ -170,7 +193,7 @@ env = make_env(raw_env)
 
 
 class _parallel_env(smac_parallel_env, EzPickle):
-    metadata = {'render.modes': ['human'], 'name': "sc2"}
+    metadata = {"render.modes": ["human"], "name": "sc2"}
 
     def __init__(self, max_cycles, **smac_args):
         EzPickle.__init__(self, max_cycles, **smac_args)
