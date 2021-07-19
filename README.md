@@ -26,14 +26,23 @@ Data from the runs used in the paper is included [here](https://github.com/oxwhi
 You can install SMAC by using the following command:
 
 ```shell
-$ pip install git+https://github.com/oxwhirl/smac.git
+pip install git+https://github.com/oxwhirl/smac.git
 ```
 
 Alternatively, you can clone the SMAC repository and then install `smac` with its dependencies:
 
 ```shell
-$ git clone https://github.com/oxwhirl/smac.git
-$ pip install smac/
+git clone https://github.com/oxwhirl/smac.git
+pip install -e smac/
+```
+
+*NOTE*: If you want to extend SMAC, please install the package as follows:
+
+```shell
+git clone https://github.com/oxwhirl/smac.git
+cd smac
+pip install -e ".[dev]"
+pre-commit install
 ```
 
 You may also need to upgrade pip: `pip install --upgrade pip` for the install to work.
