@@ -2,7 +2,7 @@ import os
 import sys
 import inspect
 from pettingzoo import test
-import sc2
+from smac.env.pettingzoo import StarCraft2PZEnv as sc2
 import pickle
 
 current_dir = os.path.dirname(

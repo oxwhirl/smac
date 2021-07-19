@@ -1,6 +1,6 @@
 from smac.env.starcraft2.maps import smac_maps
 from pysc2 import maps as pysc2_maps
-from smac.env.pettingzoo import sc2
+from smac.env.pettingzoo import StarCraft2PZEnv as sc2
 import pytest
 from pettingzoo import test
 import pickle
