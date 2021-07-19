@@ -23,6 +23,7 @@ def main():
         while not terminated:
             obs = env.get_obs()
             state = env.get_state()
+            # env.render()  # Uncomment for rendering
 
             actions = []
             for agent_id in range(n_agents):

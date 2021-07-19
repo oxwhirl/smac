@@ -1,5 +1,3 @@
-import queue
-
 import numpy as np
 import re
 import subprocess
@@ -10,6 +8,7 @@ import time
 import collections
 import os
 import pygame
+import queue
 
 from pysc2.lib import colors
 from pysc2.lib import point

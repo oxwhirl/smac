@@ -6,10 +6,12 @@ import random
 import numpy as np
 from smac.env.pettingzoo import StarCraft2PZEnv
 
-def main(env, render=True, episodes=10):
+def main():
     '''
     Runs an env object with random actions.
     '''
+    env = StarCraft2PZEnv.env()
+    episodes = 10
 
     total_reward = 0
     done = False
@@ -18,8 +20,7 @@ def main(env, render=True, episodes=10):
     while completed_episodes < episodes:
         env.reset()
         for agent in env.agent_iter():
-            if render:
-                env.render()
+            env.render()
 
             obs, reward, done, _ = env.last()
             total_reward += reward
@@ -33,13 +34,10 @@ def main(env, render=True, episodes=10):
 
         completed_episodes += 1
 
-    if render:
-        env.close()
+    env.close()
 
     print("Average total reward", total_reward / episodes)
 
 
 if __name__ == "__main__":
-    env = StarCraft2PZEnv.env()
-    episodes = 10
-    main(env, episodes)
+    main()
