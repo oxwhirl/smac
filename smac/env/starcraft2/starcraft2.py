@@ -4,6 +4,7 @@ from __future__ import print_function
 
 from smac.env.multiagentenv import MultiAgentEnv
 from smac.env.starcraft2.maps import get_map_params
+from smac.env.starcraft2.render import StarCraft2Renderer
 
 import atexit
 from warnings import warn
@@ -294,6 +295,8 @@ class StarCraft2Env(MultiAgentEnv):
         self.max_distance_y = 0
         self.map_x = 0
         self.map_y = 0
+        self.reward = 0
+        self.renderer = None
         self.terrain_height = None
         self.pathing_grid = None
         self._run_config = None
@@ -496,6 +499,8 @@ class StarCraft2Env(MultiAgentEnv):
 
         if self.reward_scale:
             reward /= self.max_reward / self.reward_scale_rate
+
+        self.reward = reward
 
         return reward, terminated, info
 
@@ -1377,6 +1382,9 @@ class StarCraft2Env(MultiAgentEnv):
 
     def close(self):
         """Close StarCraft II."""
+        if self.renderer is not None:
+            self.renderer.close()
+            self.renderer = None
         if self._sc2_proc:
             self._sc2_proc.close()
 
@@ -1384,9 +1392,11 @@ class StarCraft2Env(MultiAgentEnv):
         """Returns the random seed used by the environment."""
         return self._seed
 
-    def render(self):
-        """Not implemented."""
-        pass
+    def render(self, mode="human"):
+        if self.renderer is None:
+            self.renderer = StarCraft2Renderer(self, mode)
+        assert mode == self.renderer.mode, "mode must be consistent across render calls"
+        return self.renderer.render(mode)
 
     def _kill_all_units(self):
         """Kill all units on the map."""

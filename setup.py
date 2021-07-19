@@ -33,9 +33,11 @@ setup(
         'smac.env',
         'smac.env.starcraft2',
         'smac.env.starcraft2.maps',
+        'smac.env.pettingzoo',
         'smac.bin',
         'smac.examples',
-        'smac.examples.rllib'
+        'smac.examples.rllib',
+        'smac.examples.pettingzoo',
     ],
     install_requires=[
         'pysc2>=3.0.0',
