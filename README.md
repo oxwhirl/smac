@@ -132,7 +132,7 @@ In BibTeX format:
 }
 ```
 
-# Code Example
+# Code Examples
 
 Below is a small code example which illustrates how SMAC can be used. Here, individual agents execute random policies after receiving the observations and global state from the environment.  
 
@@ -160,6 +160,7 @@ def main():
         while not terminated:
             obs = env.get_obs()
             state = env.get_state()
+            # env.render()  # Uncomment for rendering
 
             actions = []
             for agent_id in range(n_agents):
@@ -177,6 +178,11 @@ def main():
 
 ```
 
-# RLlib Examples
+## RLlib Examples
 
-You can also run SMAC environments in [RLlib](https://rllib.io), which includes scalable algorithms such as [PPO](https://ray.readthedocs.io/en/latest/rllib-algorithms.html#proximal-policy-optimization-ppo) and [IMPALA](https://ray.readthedocs.io/en/latest/rllib-algorithms.html#importance-weighted-actor-learner-architecture-impala). Check out the [example code](https://github.com/oxwhirl/smac/tree/master/smac/examples/rllib).
+You can also run SMAC environments in [RLlib](https://rllib.io), which includes scalable algorithms such as [PPO](https://ray.readthedocs.io/en/latest/rllib-algorithms.html#proximal-policy-optimization-ppo) and [IMPALA](https://ray.readthedocs.io/en/latest/rllib-algorithms.html#importance-weighted-actor-learner-architecture-impala). Check out the example code [here](https://github.com/oxwhirl/smac/tree/master/smac/examples/rllib).
+
+## PettingZoo Example
+
+Thanks to [Rodrigo de Lazcano](https://github.com/rodrigodelazcano), SMAC now supports [PettingZoo API](https://github.com/PettingZoo-Team/PettingZoo) and PyGame environment rendering. Check out the example code [here](https://github.com/oxwhirl/smac/tree/master/smac/examples/pettingzoo).
+
