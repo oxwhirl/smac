@@ -110,7 +110,7 @@ You can watch the saved replay directly within the StarCraft II client on MacOS/
 You can also watch saved replays by running:
 
 ```shell
-python -m pysc2.bin.play --norender --rgb_minimap_size 0 --replay <path-to-replay>
+python -m pysc2.bin.play --norender --replay <path-to-replay>
 ```
 
 This works for any replay as long as the map can be found by the game. 
