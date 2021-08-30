@@ -161,9 +161,6 @@ class smac_parallel_env(ParallelEnv):
 
     def step(self, all_actions):
         action_list = [0] * self.env.n_agents
-        self.agents = [
-            agent for agent in self.agents if not self.all_dones[agent]
-        ]
         for agent in self.possible_agents:
             agent_id = self.get_agent_smac_id(agent)
             if agent in all_actions:
@@ -177,13 +174,13 @@ class smac_parallel_env(ParallelEnv):
 
         all_infos = {agent: {} for agent in self.agents}
         # all_infos.update(smac_info)
-        all_dones = self._all_dones(done)
+        self.all_dones = self._all_dones(done)
+        self.agents = [
+            agent for agent in self.agents if not self.all_dones[agent]
+        ]
         all_rewards = self._all_rewards(self._reward)
         all_observes = self._observe_all()
-
-        self.all_dones = all_dones
-
-        return all_observes, all_rewards, all_dones, all_infos
+        return all_observes, all_rewards, self.all_dones, all_infos
 
     def __del__(self):
         self.env.close()
