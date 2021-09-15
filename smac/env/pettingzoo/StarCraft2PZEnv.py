@@ -161,7 +161,7 @@ class smac_parallel_env(ParallelEnv):
 
     def step(self, all_actions):
         action_list = [0] * self.env.n_agents
-        for agent in self.possible_agents:
+        for agent in self.agents:
             agent_id = self.get_agent_smac_id(agent)
             if agent in all_actions:
                 if all_actions[agent] is None:
