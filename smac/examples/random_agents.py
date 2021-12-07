@@ -4,10 +4,18 @@ from __future__ import print_function
 
 from smac.env import StarCraft2Env
 import numpy as np
+from absl import logging
 
+logging.set_verbosity(logging.DEBUG)
 
 def main():
-    env = StarCraft2Env(map_name="8m")
+    env = StarCraft2Env(
+        map_name="8m",
+        debug=True,
+        stochastic_attack=True,
+        fully_observable=True,
+        attack_probabilities_in_state=True,
+    )
     env_info = env.get_env_info()
 
     n_actions = env_info["n_actions"]

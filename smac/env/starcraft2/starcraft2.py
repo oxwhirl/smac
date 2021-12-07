@@ -3,8 +3,11 @@ from __future__ import division
 from __future__ import print_function
 
 from smac.env.multiagentenv import MultiAgentEnv
+from smac.env.starcraft2.attack_distributions import (
+    uniform_attack_distribution,
+)
 from smac.env.starcraft2.maps import get_map_params
-from smac.env.starcraft2.distributions import get_distribution_function
+from smac.env.starcraft2.team_distributions import get_distribution_function
 
 import atexit
 from warnings import warn
@@ -91,6 +94,9 @@ class StarCraft2Env(MultiAgentEnv):
         reward_scale=True,
         reward_scale_rate=20,
         replace_teammates=False,
+        stochastic_attack=False,
+        attack_probabilities_in_state=False,
+        fully_observable=False,
         teammate_distribution="stub",
         replay_dir="",
         replay_prefix="",
@@ -236,6 +242,10 @@ class StarCraft2Env(MultiAgentEnv):
         self.distribution_function = get_distribution_function(
             teammate_distribution
         )
+        self.attack_distribution = uniform_attack_distribution(self.n_agents)
+        self.stochastic_attack = stochastic_attack
+        self.attack_probabilities_in_state = attack_probabilities_in_state
+        self.fully_observable = fully_observable
 
         # Other
         self.game_version = game_version
@@ -280,6 +290,8 @@ class StarCraft2Env(MultiAgentEnv):
         if self.shield_bits_enemy > 0:
             self.enemy_state_attr_names += ["shield"]
 
+        if self.stochastic_attack and self.attack_probabilities_in_state:
+            self.ally_state_attr_names += ["attack_probability"]
         if self.unit_type_bits > 0:
             bit_attr_names = [
                 "type_{}".format(bit) for bit in range(self.unit_type_bits)
@@ -298,6 +310,7 @@ class StarCraft2Env(MultiAgentEnv):
         self.timeouts = 0
         self.force_restarts = 0
         self.last_stats = None
+        self.agent_attack_probabilities = np.zeros(self.n_agents)
         self.death_tracker_ally = np.zeros(self.n_agents)
         self.death_tracker_enemy = np.zeros(self.n_enemies)
         self.previous_ally_units = None
@@ -318,7 +331,6 @@ class StarCraft2Env(MultiAgentEnv):
         self._run_config = None
         self._sc2_proc = None
         self._controller = None
-
         # Try to avoid leaking SC2 processes on shutdown
         atexit.register(lambda: self.close())
 
@@ -414,13 +426,17 @@ class StarCraft2Env(MultiAgentEnv):
             self._restart()
 
         # Information kept for counting the reward
+        self.agent_attack_probabilities = self.attack_distribution()
         self.death_tracker_ally = np.zeros(self.n_agents)
         self.death_tracker_enemy = np.zeros(self.n_enemies)
         self.previous_ally_units = None
         self.previous_enemy_units = None
         self.win_counted = False
         self.defeat_counted = False
-
+        if self.debug:
+            logging.debug(
+                f"Attack Probabilities: {self.agent_attack_probabilities}"
+            )
         self.last_action = np.zeros((self.n_agents, self.n_actions))
 
         if self.heuristic_ai:
@@ -643,6 +659,14 @@ class StarCraft2Env(MultiAgentEnv):
                 target_unit = self.enemies[target_id]
                 action_name = "attack"
 
+            if self.stochastic_attack:
+                p = np.random.default_rng().uniform()
+                if p > self.agent_attack_probabilities[a_id]:
+                    if self.debug:
+                        logging.debug(
+                            f"Agent {a_id} {action_name}s {target_id}, but fails"
+                        )
+                    return None
             action_id = actions[action_name]
             target_tag = target_unit.tag
 
@@ -1104,6 +1128,10 @@ class StarCraft2Env(MultiAgentEnv):
                     own_feats[ind] = unit.shield / max_shield
                     ind += 1
 
+            if self.stochastic_attack:
+                own_feats[ind] = self.agent_attack_probabilities[agent_id]
+                ind += 1
+
             if self.unit_type_bits > 0:
                 type_id = self.get_unit_type_id(unit, True)
                 own_feats[ind + type_id] = 1
@@ -1141,7 +1169,10 @@ class StarCraft2Env(MultiAgentEnv):
         NOTE: Agents should have access only to their local observations
         during decentralised execution.
         """
-        agents_obs = [self.get_obs_agent(i) for i in range(self.n_agents)]
+        agents_obs = [
+            self.get_obs_agent(i, fully_observable=self.fully_observable)
+            for i in range(self.n_agents)
+        ]
         return agents_obs
 
     def get_state(self):
@@ -1227,11 +1258,22 @@ class StarCraft2Env(MultiAgentEnv):
                     y - center_y
                 ) / self.max_distance_y  # relative Y
 
+                ind = 4
                 if self.shield_bits_ally > 0:
                     max_shield = self.unit_max_shield(al_unit)
-                    ally_state[al_id, 4] = (
+                    ally_state[al_id, ind] = (
                         al_unit.shield / max_shield
                     )  # shield
+                    ind += 1
+
+                if (
+                    self.stochastic_attack
+                    and self.attack_probabilities_in_state
+                ):
+                    ally_state[al_id, ind] = self.agent_attack_probabilities[
+                        al_id
+                    ]
+                    ind += 1
 
                 if self.unit_type_bits > 0:
                     type_id = self.get_unit_type_id(al_unit, True)
@@ -1302,6 +1344,8 @@ class StarCraft2Env(MultiAgentEnv):
         if self.obs_own_health:
             own_feats += 1 + self.shield_bits_ally
         if self.obs_timestep_number:
+            own_feats += 1
+        if self.stochastic_attack:
             own_feats += 1
 
         return own_feats
