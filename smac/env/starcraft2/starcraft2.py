@@ -943,7 +943,7 @@ class StarCraft2Env(MultiAgentEnv):
         ]
         return vals
 
-    def get_obs_agent(self, agent_id):
+    def get_obs_agent(self, agent_id, fully_observable=False):
         """Returns observation for agent_id. The observation is composed of:
 
         - agent movement features (where it can move to, height information
@@ -970,6 +970,9 @@ class StarCraft2Env(MultiAgentEnv):
 
         NOTE: Agents should have access only to their local observations
         during decentralised execution.
+
+        fully_observable: -- ignores sight range for a particular unit.
+        For Debugging purposes ONLY -- not a fair observation.
         """
         unit = self.get_unit_by_id(agent_id)
 
@@ -1010,8 +1013,8 @@ class StarCraft2Env(MultiAgentEnv):
                 e_y = e_unit.pos.y
                 dist = self.distance(x, y, e_x, e_y)
 
-                if (
-                    dist < sight_range and e_unit.health > 0
+                if (dist < sight_range and e_unit.health > 0) or (
+                    e_unit.health > 0 and fully_observable
                 ):  # visible and alive
                     # Sight range > shoot range
                     enemy_feats[e_id, 0] = avail_actions[
@@ -1053,8 +1056,8 @@ class StarCraft2Env(MultiAgentEnv):
                 al_y = al_unit.pos.y
                 dist = self.distance(x, y, al_x, al_y)
 
-                if (
-                    dist < sight_range and al_unit.health > 0
+                if (dist < sight_range and al_unit.health > 0) or (
+                    al_unit.health > 0 and fully_observable
                 ):  # visible and alive
                     ally_feats[i, 0] = 1  # visible
                     ally_feats[i, 1] = dist / sight_range  # distance
