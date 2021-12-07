@@ -4,6 +4,7 @@ from __future__ import print_function
 
 from smac.env.multiagentenv import MultiAgentEnv
 from smac.env.starcraft2.maps import get_map_params
+from smac.env.starcraft2.distributions import get_distribution_function
 
 import atexit
 from warnings import warn
@@ -89,6 +90,8 @@ class StarCraft2Env(MultiAgentEnv):
         reward_negative_scale=0.5,
         reward_scale=True,
         reward_scale_rate=20,
+        replace_teammates=False,
+        teammate_distribution="stub",
         replay_dir="",
         replay_prefix="",
         window_size_x=1920,
@@ -227,6 +230,12 @@ class StarCraft2Env(MultiAgentEnv):
         self.reward_defeat = reward_defeat
         self.reward_scale = reward_scale
         self.reward_scale_rate = reward_scale_rate
+
+        # Meta MARL
+        self.replace_teammates = replace_teammates
+        self.distribution_function = get_distribution_function(
+            teammate_distribution
+        )
 
         # Other
         self.game_version = game_version
@@ -1492,17 +1501,49 @@ class StarCraft2Env(MultiAgentEnv):
         ), "mode must be consistent across render calls"
         return self.renderer.render(mode)
 
+    def _kill_units(self, unit_tags):
+        debug_command = [
+            d_pb.DebugCommand(kill_unit=d_pb.DebugKillUnit(tag=unit_tags))
+        ]
+        self._controller.debug(debug_command)
+
     def _kill_all_units(self):
         """Kill all units on the map."""
         units_alive = [
             unit.tag for unit in self.agents.values() if unit.health > 0
         ] + [unit.tag for unit in self.enemies.values() if unit.health > 0]
-        debug_command = [
-            d_pb.DebugCommand(kill_unit=d_pb.DebugKillUnit(tag=units_alive))
-        ]
-        self._controller.debug(debug_command)
+        self._kill_units(units_alive)
 
-    def init_units(self):
+    def _create_new_team(self):
+        unit_types = {unit.unit_type for unit in self.agents.values()}
+        old_unit_tags = [unit.tag for unit in self.agents.values()]
+        new_unit_types = self.distribution_function(
+            unit_types, self.n_agents, self.enemies.values()
+        )
+
+        for i, unit_type in enumerate(new_unit_types):
+            unit = self.get_unit_by_id(i)
+            debug_command = [
+                d_pb.DebugCommand(
+                    create_unit=d_pb.DebugCreateUnit(
+                        unit_type=unit_type,
+                        owner=unit.owner,
+                        pos=unit.pos,
+                        quantity=1,
+                    )
+                )
+            ]
+            self._controller.debug(debug_command)
+        self._kill_units(old_unit_tags)
+        try:
+            self._controller.step(4)
+            self._obs = self._controller.observe()
+        except (protocol.ProtocolError, protocol.ConnectionError):
+            self.full_restart()
+            self.reset()
+        self.init_units(recurse=False)
+
+    def init_units(self, recurse=True):
         """Initialise the units."""
         while True:
             # Sometimes not all units have yet been created by SC2
@@ -1556,6 +1597,8 @@ class StarCraft2Env(MultiAgentEnv):
             ]
 
             if all_agents_created and all_enemies_created:  # all good
+                if self.replace_teammates and recurse:
+                    self._create_new_team()
                 return
 
             try:
