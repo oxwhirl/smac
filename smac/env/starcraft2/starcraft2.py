@@ -96,6 +96,8 @@ class StarCraft2Env(MultiAgentEnv):
         replace_teammates=False,
         stochastic_attack=False,
         attack_probabilities_in_state=False,
+        attack_probability_low=0.7,
+        attack_probability_high=1.0,
         fully_observable=False,
         teammate_distribution="stub",
         replay_dir="",
@@ -242,7 +244,11 @@ class StarCraft2Env(MultiAgentEnv):
         self.distribution_function = get_distribution_function(
             teammate_distribution
         )
-        self.attack_distribution = uniform_attack_distribution(self.n_agents)
+        self.attack_distribution = uniform_attack_distribution(
+            self.n_agents,
+            attack_probability_low=attack_probability_low,
+            attack_probability_high=attack_probability_high,
+        )
         self.stochastic_attack = stochastic_attack
         self.attack_probabilities_in_state = attack_probabilities_in_state
         self.fully_observable = fully_observable
