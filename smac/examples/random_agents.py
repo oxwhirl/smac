@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+from os import replace
 
 from smac.env import StarCraft2Env
 import numpy as np
@@ -8,13 +9,13 @@ from absl import logging
 
 logging.set_verbosity(logging.DEBUG)
 
+
 def main():
     env = StarCraft2Env(
-        map_name="8m",
+        map_name="3s5z_vs_3s6z",
         debug=True,
-        stochastic_attack=True,
-        fully_observable=True,
-        attack_probabilities_in_state=True,
+        replace_teammates=True,
+        teammate_distribution="all",
     )
     env_info = env.get_env_info()
 

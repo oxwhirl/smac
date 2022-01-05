@@ -1,5 +1,6 @@
 from typing import List, Optional
 from itertools import combinations_with_replacement
+from random import choice, shuffle
 
 DISTRIBUTIONS = {}
 
@@ -13,7 +14,10 @@ def register_distribution(distribution_str: str, distribution_fn):
 
 
 def stub_distribution_function(
-    ally_unit_types: List[str], n_ally_units: int, enemy_units: List[object]
+    ally_unit_types: List[str],
+    n_ally_units: int,
+    enemy_units: List[object],
+    **kwargs
 ):
     """Stub distribution function used when the meta_marl setting of SMAC is
     turned off. Raises a NotImplementedError.
@@ -24,19 +28,35 @@ def stub_distribution_function(
         enemy_units (List[object]): The list of enemy units that will be faced. This can
             be used to generate a team that matches the enemies' capabilities.
     """
-    raise NotImplementedError("No distribution of teammates specified!")
+
+    def get_team():
+        raise NotImplementedError("No distribution of teammates specified!")
+
+    return get_team
 
 
 register_distribution("stub", stub_distribution_function)
 
 
 def all_teams_distribution_function(
-    ally_unit_types: List[str], n_ally_units: int, enemy_units: List[object]
+    ally_unit_types: List[str],
+    n_ally_units: int,
+    enemy_units: List[object],
+    **kwargs
 ):
     """Distribution function that just cycles through all possible ally team
     distributions. Args as specified in `stub_distribution_function`
     """
-    yield combinations_with_replacement(ally_unit_types, n_ally_units)
+    all_combinations = list(
+        combinations_with_replacement(ally_unit_types, n_ally_units)
+    )
+
+    def get_team():
+        team = list(choice(all_combinations))
+        shuffle(team)
+        return team
+
+    return get_team
 
 
 register_distribution("all", all_teams_distribution_function)

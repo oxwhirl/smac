@@ -241,9 +241,10 @@ class StarCraft2Env(MultiAgentEnv):
 
         # Meta MARL
         self.replace_teammates = replace_teammates
-        self.distribution_function = get_distribution_function(
+        self.distribution_function_init = get_distribution_function(
             teammate_distribution
         )
+        self.distribution_function = None
         self.attack_distribution = uniform_attack_distribution(
             self.n_agents,
             attack_probability_low=attack_probability_low,
@@ -914,10 +915,12 @@ class StarCraft2Env(MultiAgentEnv):
         """Returns maximal shield for a given unit."""
         if unit.unit_type == 74 or unit.unit_type == self.stalker_id:
             return 80  # Protoss's Stalker
-        if unit.unit_type == 73 or unit.unit_type == self.zealot_id:
+        elif unit.unit_type == 73 or unit.unit_type == self.zealot_id:
             return 50  # Protoss's Zaelot
-        if unit.unit_type == 4 or unit.unit_type == self.colossus_id:
+        elif unit.unit_type == 4 or unit.unit_type == self.colossus_id:
             return 150  # Protoss's Colossus
+        else:
+            raise Exception("Maximum shield not recognised")
 
     def can_move(self, unit, direction):
         """Whether a unit can move in a given direction."""
@@ -1567,9 +1570,12 @@ class StarCraft2Env(MultiAgentEnv):
     def _create_new_team(self):
         unit_types = {unit.unit_type for unit in self.agents.values()}
         old_unit_tags = [unit.tag for unit in self.agents.values()]
-        new_unit_types = self.distribution_function(
-            unit_types, self.n_agents, self.enemies.values()
-        )
+
+        if not self.distribution_function:
+            self.distribution_function = self.distribution_function_init(
+                unit_types, self.n_agents, self.enemies.values()
+            )
+        new_unit_types = self.distribution_function()
 
         for i, unit_type in enumerate(new_unit_types):
             unit = self.get_unit_by_id(i)
@@ -1578,7 +1584,7 @@ class StarCraft2Env(MultiAgentEnv):
                     create_unit=d_pb.DebugCreateUnit(
                         unit_type=unit_type,
                         owner=unit.owner,
-                        pos=unit.pos,
+                        pos=sc_common.Point2D(x=unit.pos.x, y=unit.pos.y),
                         quantity=1,
                     )
                 )
@@ -1629,7 +1635,7 @@ class StarCraft2Env(MultiAgentEnv):
                     if self._episode_count == 0:
                         self.max_reward += unit.health_max + unit.shield_max
 
-            if self._episode_count == 0:
+            if self._episode_count == 0 and recurse:
                 min_unit_type = min(
                     unit.unit_type for unit in self.agents.values()
                 )
