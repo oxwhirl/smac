@@ -3,7 +3,7 @@ from gym.utils import EzPickle
 from gym.utils import seeding
 from gym import spaces
 from pettingzoo.utils.env import ParallelEnv
-from pettingzoo.utils.conversions import from_parallel_wrapper
+from pettingzoo.utils.conversions import parallel_to_aec as from_parallel_wrapper
 from pettingzoo.utils import wrappers
 import numpy as np
 
