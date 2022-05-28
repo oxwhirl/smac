@@ -306,6 +306,8 @@ class StarCraft2Env(MultiAgentEnv):
         self.renderer = None
         self.terrain_height = None
         self.pathing_grid = None
+        self.state_feature_names = self.build_state_feature_names()
+        self.obs_feature_names = self.build_obs_feature_names()
         self._run_config = None
         self._sc2_proc = None
         self._controller = None
@@ -879,6 +881,133 @@ class StarCraft2Env(MultiAgentEnv):
             return 50  # Protoss's Zaelot
         if unit.unit_type == 4 or unit.unit_type == self.colossus_id:
             return 150  # Protoss's Colossus
+
+    def build_state_feature_names(self):
+        """Return the state feature names."""
+        if self.obs_instead_of_state:
+            raise NotImplementedError
+
+        feature_names = []
+
+        # Ally features.
+        for al_id in range(self.n_agents):
+            feature_names.append(f'ally_health_{al_id}')
+            feature_names.append(f'ally_cooldown_{al_id}')
+            feature_names.append(f'ally_relative_x_{al_id}')
+            feature_names.append(f'ally_relative_y_{al_id}')
+
+            if self.shield_bits_ally > 0:
+                feature_names.append(f'ally_shield_{al_id}')
+
+            if self.unit_type_bits > 0:
+                for bit in range(self.unit_type_bits):
+                    feature_names.append(f'ally_unit_type_{al_id}_bit_{bit}')
+
+        # Enemy features.
+        for e_id in range(self.n_enemies):
+            feature_names.append(f'enemy_health_{e_id}')
+            feature_names.append(f'enemy_relative_x_{e_id}')
+            feature_names.append(f'enemy_relative_y_{e_id}')
+
+            if self.shield_bits_enemy > 0:
+                feature_names.append(f'enemy_shield_{e_id}')
+
+            if self.unit_type_bits > 0:
+                for bit in range(self.unit_type_bits):
+                    feature_names.append(f'enemy_unit_type_{e_id}_bit_{bit}')
+
+        if self.state_last_action:
+            for al_id in range(self.n_agents):
+                for action_idx in range(self.n_actions):
+                    feature_names.append(f'ally_last_action_{al_id}_action_{action_idx}')
+
+        if self.state_timestep_number:
+            feature_names.append("timestep")
+
+        return feature_names
+
+    def get_state_feature_names(self):
+        return self.state_feature_names
+
+    def build_obs_feature_names(self):
+        """Return the observations feature names."""
+        feature_names = []
+
+        # Movement features.
+        feature_names.extend(
+            [
+                "move_action_north",
+                "move_action_south",
+                "move_action_east",
+                "move_action_west",
+            ]
+        )
+        if self.obs_pathing_grid:
+            feature_names.extend(
+                [f"pathing_grid_{n}" for n in range(self.n_obs_pathing)]
+            )
+        if self.obs_terrain_height:
+            feature_names.extend(
+                [f"terrain_height_{n}" for n in range(self.n_obs_height)]
+            )
+
+        # Enemy features.
+        for e_id in range(self.n_enemies):
+            feature_names.extend(
+                [
+                    f"enemy_shootable_{e_id}",
+                    f"enemy_distance_{e_id}",
+                    f"enemy_relative_x_{e_id}",
+                    f"enemy_relative_y_{e_id}",
+                ]
+            )
+            if self.obs_all_health:
+                feature_names.append(f"enemy_health_{e_id}")
+            if self.obs_all_health and self.shield_bits_enemy > 0:
+                feature_names.append(f"enemy_shield_{e_id}")
+            if self.unit_type_bits > 0:
+                feature_names.extend([f'enemy_unit_type_{e_id}_bit_{bit}'
+                                      for bit in range(self.unit_type_bits)])
+
+        # Ally features.
+        # From the perspective of agent 0.
+        al_ids = [al_id for al_id in range(self.n_agents) if al_id != 0]
+        for al_id in al_ids:
+            feature_names.extend(
+                [
+                    f"ally_visible_{al_id}",
+                    f"ally_distance_{al_id}",
+                    f"ally_relative_x_{al_id}",
+                    f"ally_relative_y_{al_id}",
+                ]
+            )
+            if self.obs_all_health:
+                feature_names.append(f"ally_health_{al_id}")
+                if self.shield_bits_ally > 0:
+                    feature_names.append(f"ally_shield_{al_id}")
+            if self.unit_type_bits > 0:
+                feature_names.extend([f"ally_unit_type_{al_id}_bit_{bit}"
+                                      for bit in range(self.unit_type_bits)])
+            if self.obs_last_action:
+                feature_names.extend([f"ally_last_action_{al_id}_action_{action}"
+                                      for action in range(self.n_actions)])
+
+        # Own features.
+        if self.obs_own_health:
+            feature_names.append("own_health")
+            if self.shield_bits_ally > 0:
+                feature_names.append("own_shield")
+        if self.unit_type_bits > 0:
+            feature_names.extend(
+                [f"own_unit_type_bit_{bit}" for bit in range(self.unit_type_bits)]
+            )
+        if self.obs_timestep_number:
+            feature_names.append("timestep")
+
+        return feature_names
+
+    def get_obs_feature_names(self):
+        return self.obs_feature_names
 
     def can_move(self, unit, direction):
         """Whether a unit can move in a given direction."""

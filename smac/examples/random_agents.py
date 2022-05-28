@@ -7,7 +7,7 @@ import numpy as np
 
 
 def main():
-    env = StarCraft2Env(map_name="8m")
+    env = StarCraft2Env(map_name="10m_vs_11m")
     env_info = env.get_env_info()
 
     n_actions = env_info["n_actions"]
@@ -22,7 +22,11 @@ def main():
 
         while not terminated:
             obs = env.get_obs()
+            obs_features = env.get_obs_feature_names()
             state = env.get_state()
+            state_features = env.get_state_feature_names()
+            assert len(state) == len(state_features)
+            assert len(obs[0]) == len(obs_features)
             # env.render()  # Uncomment for rendering
 
             actions = []
