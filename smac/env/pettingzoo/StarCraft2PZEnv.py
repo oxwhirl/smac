@@ -116,7 +116,7 @@ class smac_parallel_env(ParallelEnv):
     def close(self):
         self.env.close()
 
-    def reset(self, seed=None):
+    def reset(self, seed=None, options=None):
         self.env._episode_count = 1
         self.env.reset()
 
