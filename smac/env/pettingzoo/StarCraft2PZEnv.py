@@ -3,7 +3,7 @@ from gym.utils import EzPickle
 from gym.utils import seeding
 from gym import spaces
 from pettingzoo.utils.env import ParallelEnv
-from pettingzoo.utils.conversions import from_parallel_wrapper
+from pettingzoo.utils.conversions import parallel_to_aec as from_parallel_wrapper
 from pettingzoo.utils import wrappers
 import numpy as np
 
@@ -116,7 +116,7 @@ class smac_parallel_env(ParallelEnv):
     def close(self):
         self.env.close()
 
-    def reset(self):
+    def reset(self, seed=None, options=None):
         self.env._episode_count = 1
         self.env.reset()
 
@@ -141,9 +141,10 @@ class smac_parallel_env(ParallelEnv):
             obs = self.env.get_obs_agent(agent_id)
             action_mask = self.env.get_avail_agent_actions(agent_id)
             action_mask = action_mask[1:]
-            action_mask = (np.array(action_mask).astype(bool)).astype(int)
+            action_mask = np.array(action_mask).astype(np.int8)
+            obs = np.asarray(obs, dtype=np.float32)
             all_obs.append(
-                {"observation": np.array(obs), "action_mask": action_mask}
+                {"observation": obs, "action_mask": action_mask}
             )
         return {agent: obs for agent, obs in zip(self.agents, all_obs)}
 
@@ -161,10 +162,7 @@ class smac_parallel_env(ParallelEnv):
 
     def step(self, all_actions):
         action_list = [0] * self.env.n_agents
-        self.agents = [
-            agent for agent in self.agents if not self.all_dones[agent]
-        ]
-        for agent in self.possible_agents:
+        for agent in self.agents:
             agent_id = self.get_agent_smac_id(agent)
             if agent in all_actions:
                 if all_actions[agent] is None:
@@ -181,7 +179,9 @@ class smac_parallel_env(ParallelEnv):
         all_rewards = self._all_rewards(self._reward)
         all_observes = self._observe_all()
 
-        self.all_dones = all_dones
+        self.agents = [
+            agent for agent in self.agents if not all_dones[agent]
+        ]
 
         return all_observes, all_rewards, all_dones, all_infos
 
