@@ -51,6 +51,7 @@ setup(
     ],
     extras_require=extras_deps,
     install_requires=[
+        "protobuf==3.19.0",
         "pysc2>=3.0.0",
         "s2clientprotocol>=4.10.1.75800.0",
         "absl-py>=0.1.0",
