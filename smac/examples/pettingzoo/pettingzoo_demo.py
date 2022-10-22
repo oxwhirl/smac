@@ -23,9 +23,9 @@ def main():
         for agent in env.agent_iter():
             env.render()
 
-            obs, reward, done, _ = env.last()
+            obs, reward, terms, truncs, _ = env.last()
             total_reward += reward
-            if done:
+            if terms or truncs:
                 action = None
             elif isinstance(obs, dict) and "action_mask" in obs:
                 action = random.choice(np.flatnonzero(obs["action_mask"]))
