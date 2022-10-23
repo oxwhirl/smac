@@ -3,7 +3,9 @@ from gym.utils import EzPickle
 from gym.utils import seeding
 from gym import spaces
 from pettingzoo.utils.env import ParallelEnv
-from pettingzoo.utils.conversions import parallel_to_aec as from_parallel_wrapper
+from pettingzoo.utils.conversions import (
+    parallel_to_aec as from_parallel_wrapper,
+)
 from pettingzoo.utils import wrappers
 import numpy as np
 
@@ -122,7 +124,8 @@ class smac_parallel_env(ParallelEnv):
 
         self.agents = self.possible_agents[:]
         self.frames = 0
-        self.all_dones = {agent: False for agent in self.possible_agents}
+        self.terminations = {agent: False for agent in self.possible_agents}
+        self.truncations = {agent: False for agent in self.possible_agents}
         return self._observe_all()
 
     def get_agent_smac_id(self, agent):
@@ -143,22 +146,25 @@ class smac_parallel_env(ParallelEnv):
             action_mask = action_mask[1:]
             action_mask = np.array(action_mask).astype(np.int8)
             obs = np.asarray(obs, dtype=np.float32)
-            all_obs.append(
-                {"observation": obs, "action_mask": action_mask}
-            )
+            all_obs.append({"observation": obs, "action_mask": action_mask})
         return {agent: obs for agent, obs in zip(self.agents, all_obs)}
 
-    def _all_dones(self, step_done=False):
-        dones = [True] * len(self.agents)
-        if not step_done:
+    def _all_terms_truncs(self, terminated=False, truncated=False):
+        terminations = [True] * len(self.agents)
+
+        if not terminated:
             for i, agent in enumerate(self.agents):
                 agent_done = False
                 agent_id = self.get_agent_smac_id(agent)
                 agent_info = self.env.get_unit_by_id(agent_id)
                 if agent_info.health == 0:
                     agent_done = True
-                dones[i] = agent_done
-        return {agent: bool(done) for agent, done in zip(self.agents, dones)}
+                terminations[i] = agent_done
+
+        terminations = {a: bool(t) for a, t in zip(self.agents, terminations)}
+        truncations = {a: truncated for a in self.agents}
+
+        return terminations, truncations
 
     def step(self, all_actions):
         action_list = [0] * self.env.n_agents
@@ -171,19 +177,19 @@ class smac_parallel_env(ParallelEnv):
                     action_list[agent_id] = all_actions[agent] + 1
         self._reward, terminated, smac_info = self.env.step(action_list)
         self.frames += 1
-        done = terminated or self.frames >= self.max_cycles
 
         all_infos = {agent: {} for agent in self.agents}
         # all_infos.update(smac_info)
-        all_dones = self._all_dones(done)
+        all_terms, all_truncs = self._all_terms_truncs(
+            terminated=terminated, truncated=(self.frames >= self.max_cycles)
+        )
         all_rewards = self._all_rewards(self._reward)
         all_observes = self._observe_all()
 
-        self.agents = [
-            agent for agent in self.agents if not all_dones[agent]
-        ]
+        self.agents = [agent for agent in self.agents if not all_terms[agent]]
+        self.agents = [agent for agent in self.agents if not all_truncs[agent]]
 
-        return all_observes, all_rewards, all_dones, all_infos
+        return all_observes, all_rewards, all_terms, all_truncs, all_infos
 
     def __del__(self):
         self.env.close()
