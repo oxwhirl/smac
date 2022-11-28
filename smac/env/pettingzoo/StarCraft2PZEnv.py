@@ -1,7 +1,7 @@
 from smac.env import StarCraft2Env
-from gym.utils import EzPickle
-from gym.utils import seeding
-from gym import spaces
+from gymnasium.utils import EzPickle
+from gymnasium.utils import seeding
+from gymnasium import spaces
 from pettingzoo.utils.env import ParallelEnv
 from pettingzoo.utils.conversions import (
     parallel_to_aec as from_parallel_wrapper,
