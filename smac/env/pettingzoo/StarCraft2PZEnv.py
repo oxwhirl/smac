@@ -62,6 +62,12 @@ class smac_parallel_env(ParallelEnv):
         }
         self._reward = 0
 
+    def observation_space(self, agent):
+        return self.observation_spaces[agent]
+
+    def action_space(self, agent):
+        return self.action_spaces[agent]
+
     def _init_agents(self):
         last_type = ""
         agents = []
