@@ -60,6 +60,8 @@ class smac_parallel_env(ParallelEnv):
             )
             for name in self.agents
         }
+        state_size = env.get_state_size()
+        self.state_space = spaces.Box(low=-1, high=1, shape=(state_size,), dtype="float32")
         self._reward = 0
 
     def observation_space(self, agent):
@@ -196,6 +198,9 @@ class smac_parallel_env(ParallelEnv):
         self.agents = [agent for agent in self.agents if not all_truncs[agent]]
 
         return all_observes, all_rewards, all_terms, all_truncs, all_infos
+    
+    def state(self):
+        return self.env.get_state()
 
     def __del__(self):
         self.env.close()
