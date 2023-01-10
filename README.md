@@ -1,5 +1,5 @@
 <p align="center">
- <img width="85%" src="docs/smac-official.png" />
+ <img width="95%" src="docs/smac-official.png" />
 </p>
 
 > __Note__
