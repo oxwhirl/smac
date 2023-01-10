@@ -1,10 +1,12 @@
-```diff
-- Please pay attention to the version of SC2 you are using for your experiments. 
-- Performance is *not* always comparable between versions. 
-- The results in SMAC (https://arxiv.org/abs/1902.04043) use SC2.4.6.2.69232 not SC2.4.10.
-```
+<p align="center">
+ <img width="85%" src="docs/smac-official.png" />
+</p>
 
-**News:** SMACv2 is out! Check it out [here](https://github.com/oxwhirl/smacv2).
+> __Note__
+> SMACv2 is out! Check it out [here](https://github.com/oxwhirl/smacv2).
+
+> __Warning__
+> **Please pay attention to the version of SC2 used for your experiments.** Performance is **not** always comparable between versions. The results in the [SMAC paper](https://arxiv.org/abs/1902.04043) use `SC2.4.6.2.69232` not `SC2.4.10`.
 
 # SMAC - StarCraft Multi-Agent Challenge
 
@@ -17,7 +19,7 @@ Please refer to the accompanying [paper](https://arxiv.org/abs/1902.04043) and [
 
 Together with SMAC we also release [PyMARL](https://github.com/oxwhirl/pymarl) - our [PyTorch](https://github.com/pytorch/pytorch) framework for MARL research, which includes implementations of several state-of-the-art algorithms, such as [QMIX](https://arxiv.org/abs/1803.11485) and [COMA](https://arxiv.org/abs/1705.08926).
 
-Should you have any question, please reach to [mikayel@samvelyan.com](mailto:mikayel@samvelyan.com) or [tabish.rashid@cs.ox.ac.uk](mailto:tabish.rashid@cs.ox.ac.uk).
+Should you have any question, please reach to [Mikayel Samvelyan](https://samvelyan.com/).
 
 Data from the runs used in the paper is included [here](https://github.com/oxwhirl/smac/releases/download/v1/smac_run_data.json). **These runs are <ins>outdated</ins> based on recent changes in StarCraft II. If you ran your experiments using the current version of SMAC, you mustn't compare your results with the ones provided here.**
 
