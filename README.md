@@ -1,10 +1,12 @@
-```diff
-- Please pay attention to the version of SC2 you are using for your experiments. 
-- Performance is *not* always comparable between versions. 
-- The results in SMAC (https://arxiv.org/abs/1902.04043) use SC2.4.6.2.69232 not SC2.4.10.
-```
+<p align="center">
+ <img width="85%" src="docs/smac-official.png" />
+</p>
 
-**News:** SMACv2 is out! Check it out [here](https://github.com/oxwhirl/smacv2).
+> __Note__
+> SMACv2 is out! Check it out [here](https://github.com/oxwhirl/smacv2).
+
+> __Warning__
+> **Please pay attention to the version of SC2 you are using for your experiments.** Performance is *not* always comparable between versions. The results in the [SMAC paper](https://arxiv.org/abs/1902.04043) use `SC2.4.6.2.69232` not `SC2.4.10`.
 
 # SMAC - StarCraft Multi-Agent Challenge
 
