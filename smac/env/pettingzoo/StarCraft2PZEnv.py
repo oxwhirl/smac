@@ -1,4 +1,5 @@
 from smac.env import StarCraft2Env
+from smac.env.starcraft2.maps import get_map_params
 from gymnasium.utils import EzPickle
 from gymnasium.utils import seeding
 from gymnasium import spaces
@@ -13,6 +14,8 @@ max_cycles_default = 1000
 
 
 def parallel_env(max_cycles=max_cycles_default, **smac_args):
+    map_name = smac_args.get("map_name", "8m")
+    max_cycles = get_map_params(map_name)["limit"]
     return _parallel_env(max_cycles, **smac_args)
 
 
