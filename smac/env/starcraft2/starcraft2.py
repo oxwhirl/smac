@@ -1389,7 +1389,10 @@ class StarCraft2Env(MultiAgentEnv):
         else:  # use default SC2 unit types
             if self.map_type == "stalkers_and_zealots":
                 # id(Stalker) = 74, id(Zealot) = 73
-                type_id = unit.unit_type - 73
+                if unit.unit_type == 74:
+                    return 0
+                else:
+                    return 1
             elif self.map_type == "colossi_stalkers_zealots":
                 # id(Stalker) = 74, id(Zealot) = 73, id(Colossus) = 4
                 if unit.unit_type == 4:
@@ -1399,11 +1402,13 @@ class StarCraft2Env(MultiAgentEnv):
                 else:
                     type_id = 2
             elif self.map_type == "bane":
+                # id(Baneling) = 9
                 if unit.unit_type == 9:
                     type_id = 0
                 else:
                     type_id = 1
             elif self.map_type == "MMM":
+                # id(Marauder) = 51, id(Marine) = 48, id(Medivac) = 54
                 if unit.unit_type == 51:
                     type_id = 0
                 elif unit.unit_type == 48:
